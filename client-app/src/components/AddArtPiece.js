@@ -13,7 +13,7 @@ class AddArtPiece extends Component {
 
     render() {
         return (
-            <form>
+            <div className="add-form">
 				<div className="form-group row">
 					<label for="serialNumber" className="col-sm-2 col-form-label">serialNumber</label>
 					<div class="col-sm-10">
@@ -33,10 +33,13 @@ class AddArtPiece extends Component {
 					</div>
 				</div>
 				<div class="custom-file">
-    				<input type="file" className="custom-file-input" id="file" required />>
-    				<label class="custom-file-label" for="file">Choose file...</label>
+    				<input type="file" className="custom-file-input" id="file" required />
   				</div>
-    		</form>
+
+				<div className="form-group row">
+					<button className="col-md-3 btn btn-success">Add to Block chain</button>
+				</div>
+    		</div						>
         )
     }
 }
