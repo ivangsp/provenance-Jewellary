@@ -31,10 +31,13 @@ type SmartContract struct {
 /* Define Tuna structure, with 4 properties.  
 Structure tags are used by encoding/json library
 */
-type Tuna struct {
+type Product struct {
 	Timestamp string `json:"timestamp"`
 	Location  string `json:"location"`
 	Holder  string `json:"holder"`
+	SerialNumber string `json:"serialNumber"`
+	Name string `json: name`
+
 }
 
 /*
@@ -44,7 +47,7 @@ type Tuna struct {
  -- see initLedger()
  */
 func (s *SmartContract) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
-	return shim.Success(nil)
+	return shim.Success(nil);
 }
 
 /*
@@ -56,16 +59,16 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
 	// Route to the appropriate handler function to interact with the ledger
-	if function == "queryTuna" {
-		return s.queryTuna(APIstub, args)
+	if function == "queryProduct" {
+		return s.queryProduct(APIstub, args)
 	} else if function == "initLedger" {
 		return s.initLedger(APIstub)
-	} else if function == "recordTuna" {
-		return s.recordTuna(APIstub, args)
-	} else if function == "queryAllTuna" {
-		return s.queryAllTuna(APIstub)
-	} else if function == "changeTunaHolder" {
-		return s.changeTunaHolder(APIstub, args)
+	} else if function == "recordProduct" {
+		return s.recordProduct(APIstub, args)
+	} else if function == "queryAllProducts" {
+		return s.queryAllProducts(APIstub)
+	} else if function == "changeProductHolder" {
+		return s.changeProductHolder(APIstub, args)
 	}
 
 	return shim.Error(function)
@@ -76,7 +79,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 Used to view the records of one particular tuna
 It takes one argument -- the key for the tuna in question
  */
-func (s *SmartContract) queryTuna(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) queryProduct(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -94,10 +97,9 @@ func (s *SmartContract) queryTuna(APIstub shim.ChaincodeStubInterface, args []st
 Will add test data (10 tuna catches)to our network
  */
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
-	tuna := []Tuna{
-		Tuna{ Location: "67.0006, -70.5476", Timestamp: "1504054225", Holder: "Miriam"},
-		Tuna{ Location: "91.2395, -49.4594", Timestamp: "1504057825", Holder: "Dave"},
-		Tuna{ Location: "58.0148, 59.01391", Timestamp: "1493517025", Holder: "Igor"},
+	tuna := []Product{
+		Product{ Location: "Raatuse 22", Timestamp: "1504054225", Holder: "Miriam", SerialNumber: "01", Name: "gold ornament" },
+		Product{ Location: "Tartu", Timestamp: "1504057825", Holder: "Dave", SerialNumber: "02", Name: "diamond ring" },
 	}
 
 	i := 0
@@ -117,13 +119,13 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 Fisherman like Sarah would use to record each of her tuna catches. 
 This method takes in five arguments (attributes to be saved in the ledger). 
  */
-func (s *SmartContract) recordTuna(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) recordProduct(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
-	}
+	// if len(args) != 4 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 4")
+	// }
 
-	var tuna = Tuna{ Location: args[1], Timestamp: args[2], Holder: args[3] }
+	var tuna = Product{ SerialNumber: args[0], Name: args[1],  Holder: args[2], Location: args[3], Timestamp: args[4] }
 
 	tunaAsBytes, _ := json.Marshal(tuna)
 	err := APIstub.PutState(args[0], tunaAsBytes)
@@ -139,7 +141,7 @@ func (s *SmartContract) recordTuna(APIstub shim.ChaincodeStubInterface, args []s
 allows for assessing all the records added to the ledger(all tuna catches)
 This method does not take any arguments. Returns JSON string containing results. 
  */
-func (s *SmartContract) queryAllTuna(APIstub shim.ChaincodeStubInterface) sc.Response {
+func (s *SmartContract) queryAllProducts(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "0"
 	endKey := "999"
@@ -187,7 +189,7 @@ func (s *SmartContract) queryAllTuna(APIstub shim.ChaincodeStubInterface) sc.Res
 The data in the world state can be updated with who has possession. 
 This function takes in 2 arguments, tuna id and new holder name. 
  */
-func (s *SmartContract) changeTunaHolder(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) changeProductHolder(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
@@ -197,7 +199,7 @@ func (s *SmartContract) changeTunaHolder(APIstub shim.ChaincodeStubInterface, ar
 	if tunaAsBytes == nil {
 		return shim.Error("Could not locate tuna")
 	}
-	tuna := Tuna{}
+	tuna := Product{}
 
 	json.Unmarshal(tunaAsBytes, &tuna)
 	// Normally check that the specified argument is a valid holder of tuna
