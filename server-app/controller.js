@@ -7,8 +7,8 @@
  */
 
 // call the packages we need
-var express       = require('express');        // call express
-var app           = express();                 // define our app using express
+var express       = require('express');        
+var app           = express();                
 var bodyParser    = require('body-parser');
 var http          = require('http');
 var fs            = require('fs');
@@ -85,16 +85,14 @@ return{
 		});
 	},
 	record_product: function(req, res){
-
-		var serialNumber = req.body.serialNumber;
-		var name 		 = req.body.name;
-		var timestamp 	 = "59876";
-		var location	 = req.body.location;
-		var holder 		 = req.body.holder;
+		var serialNumber =  req.body.serialNumber
+		var name 		 =  req.body.name
+		var timestamp 	 = "5987633";
+		var location	 =  req.body.location
+		var holder 		 =  req.body.holder
 
 
 		var fabric_client = new Fabric_Client();
-		debugger;
 		// setup the fabric network
 		var channel = fabric_client.newChannel('mychannel');
 		var peer = fabric_client.newPeer('grpc://localhost:7051');
@@ -224,19 +222,20 @@ return{
 		    // check the results in the order the promises were added to the promise all list
 		    if (results && results[0] && results[0].status === 'SUCCESS') {
 		        console.log('Successfully sent transaction to the orderer.');
-		        res.send(tx_id.getTransactionID());
+		        res.send({error: false, msg: tx_id.getTransactionID()});
 		    } else {
-		        console.error('Failed to order the transaction. Error code: ' + response.status);
+		        throw new Error('Failed to order the transaction. Error code: ' + response.status);
 		    }
 
 		    if(results && results[1] && results[1].event_status === 'VALID') {
 		        console.log('Successfully committed the change to the ledger by the peer');
 		        // res.send(tx_id.getTransactionID());
 		    } else {
-		        console.log('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
+		        throw new Error('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
 		    }
 		}).catch((err) => {
-		    console.error('Failed to invoke successfully :: ' + err);
+			console.error('Failed to invoke successfully :: ' + err);
+			res.send({error: true, msg: err.message})
 		});
 	},
 	get_product: function(req, res){
