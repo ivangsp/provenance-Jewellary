@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import  {AddArtPiece, SingleArtPiece} from './components/index';
+import  {AddArtPiece, SingleArtPiece, TransactionHistory, TransferOwnership } from './components/index';
 import axios from 'axios';
 import utils from './utils/state';
 
@@ -10,7 +10,8 @@ class App extends Component {
         super(props);
         this.state = {
             products: [],
-            transId: ''
+            transId: '',
+            transactionHistory: []
         };
     }
 
@@ -31,6 +32,12 @@ class App extends Component {
         this.setState({transId: id})
     }
 
+    transactionHistory(trans) {
+        this.setState({
+            transactionHistory: trans
+        })
+    }
+
     render() {   
         return (
             <div className="main-wrapper">
@@ -44,7 +51,15 @@ class App extends Component {
                         this.state.transId && <p className="text-center show-transId"> {this.state.transId} </p>
                     }
                 </div>
-                <SingleArtPiece products={this.state.products} />
+                <SingleArtPiece 
+                    products={this.state.products} 
+                    transactionHistory={(trans) => this.transactionHistory(trans)}/>
+                <div className="row">
+                    <TransactionHistory trans = {this.state.transactionHistory} />
+                </div>
+                <div className="row">
+                    <TransferOwnership transferOwnership = {(id) => this.onSubmitTransaction(id) } />
+                </div>
             </div>
         )
     }

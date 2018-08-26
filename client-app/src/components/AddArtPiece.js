@@ -16,12 +16,22 @@ class AddArtPiece extends Component {
 			[e.target.name]: e.target.value
 		})
 	}
+	fileUploadHandler = (event) => {
+		this.setState({
+			image: event.target.files[0]
+		});
+	}
 
 	submit() {
 		this.setState({
 			showLoader: true
 		});
-		utils.recordTransaction(this.state)
+		const fd = new FormData();
+		fd.append('image', this.state.image, this.state.image.name);
+		const params = this.state;
+		params.image = fd;
+
+		utils.recordTransaction(fd)
 			.then(transId => {
 				this.setState({
 					showLoader: false
@@ -61,26 +71,46 @@ class AddArtPiece extends Component {
 				</div>
 
 				<div className="form-group row">
+					<label htmlFor="holderName" className="col-sm-2 col-form-label">ID of Owner</label>
+					<div className="col-sm-3">
+						<input
+							type="text" className="form-control" onChange={(e) => this.onChange(e) }
+							id="holderName" required name="ownerId" 
+						/>
+					</div>
+				</div>
+
+				<div className="form-group row">
 					<label htmlFor="holderName" className="col-sm-2 col-form-label">Name of artisan</label>
 					<div className="col-sm-10">
 						<input
 							type="text" className="form-control" onChange={(e) => this.onChange(e) }
-							id="holderName" required name="holder" 
+							id="holderName" required name="owner" 
 						/>
 					</div>
 				</div>
+
 				<div className="form-group row">
 					<label htmlFor="address" className="col-sm-2 col-form-label">Address:</label>
 					<div className="col-sm-10">
 						<input 
-							type="text" className="form-control" name="location"
+							type="text" className="form-control" name="company"
 							id="address" required onChange={(e) => this.onChange(e) }
+						/>
+					</div>
+				</div>
+				<div className="form-group row">
+					<label htmlFor="company" className="col-sm-2 col-form-label">Company:</label>
+					<div className="col-sm-10">
+						<input 
+							type="text" className="form-control" name="company"
+							id="company" required onChange={(e) => this.onChange(e) }
 						/>
 					</div>
 				</div>
 				<div className="custom-file">
 					<input type="file" className="custom-file-input" name="file" 
-						id="file" required onChange={(e) => this.onChange(e) } 
+						id="file" required onChange={ this.fileUploadHandler } 
 					/>
   				</div>
 

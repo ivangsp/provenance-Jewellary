@@ -13,7 +13,7 @@ module.exports = function(app){
   app.get('/get_all_products', function(req, res){
     prod.get_all_products(req, res);
   });
-  app.get('/change_holder/:holder', function(req, res){
+  app.post('/change_holder/', function(req, res){
     prod.change_holder(req, res);
   });
 }

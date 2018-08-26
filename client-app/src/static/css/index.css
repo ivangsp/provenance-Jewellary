@@ -54,3 +54,16 @@
     color: red;
     font-size: 17pt;
 }
+
+.block-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.block {
+    background: green;
+    margin: 5px;
+    color: white;
+    font-weight: bold;
+}

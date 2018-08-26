@@ -85,12 +85,14 @@ return{
 		});
 	},
 	record_product: function(req, res){
-		var serialNumber =  req.body.serialNumber
-		var name 		 =  req.body.name
-		var timestamp 	 = "5987633";
-		var location	 =  req.body.location
-		var holder 		 =  req.body.holder
-
+		var id			 		 =  req.body.serialNumber;
+		var prodName 			 =  req.body.name;
+		var timestamp 	 		 = "5987633";
+		var location	 		 =  req.body.location;
+		var ownerId 			 =  req.body.ownerId;
+		var owner	 		     =  req.body.owner
+		var company     		 =  req.body.company
+		console.log('params>>', req);
 
 		var fabric_client = new Fabric_Client();
 		// setup the fabric network
@@ -137,7 +139,7 @@ return{
 		        //targets : --- letting this default to the peers assigned to the channel
 		        chaincodeId: 'tuna-app',
 		        fcn: 'recordProduct',
-		        args: [serialNumber,  name, holder, location, timestamp],
+		        args: [id, timestamp, prodName, ownerId, owner, company],
 		        chainId: 'mychannel',
 		        txId: tx_id
 		    };
@@ -242,6 +244,7 @@ return{
 
 		var fabric_client = new Fabric_Client();
 		var key = req.params.id;
+		console.log('>>>Key>>>', key);
 
 		// setup the fabric network
 		var channel = fabric_client.newChannel('mychannel');
@@ -280,7 +283,7 @@ return{
 		    const request = {
 		        chaincodeId: 'tuna-app',
 		        txId: tx_id,
-		        fcn: 'queryTuna',
+		        fcn: 'getHistory',
 		        args: [key]
 		    };
 
@@ -308,11 +311,15 @@ return{
 		});
 	},
 	change_holder: function(req, res){
-		console.log("changing holder of tuna catch: ");
+		console.log("changing holder of tuna catch: ", req.body);
 
-		var array = req.params.holder.split("-");
-		var key = array[0];
-		var holder = array[1];
+		var key 		 			 = req.body.key;
+		var prev_ownerId			 = req.body.prevOwnerId;
+		var prev_username 			 = req.body.prevOwnerUsername;
+		
+		var new_ownerId 			 = req.body.newOwnerId;
+		var new_username	 		 = req.body.newOwnerUsername;
+		var new_ownerCompany 		 = req.body.newOwnerCompany;
 
 		var fabric_client = new Fabric_Client();
 
@@ -360,7 +367,7 @@ return{
 		        //targets : --- letting this default to the peers assigned to the channel
 		        chaincodeId: 'tuna-app',
 		        fcn: 'changeProductHolder',
-		        args: [key, holder],
+		        args: [key, prev_ownerId, prev_username, new_ownerId, new_username, new_ownerCompany],
 		        chainId: 'mychannel',
 		        txId: tx_id
 		    };
@@ -438,29 +445,29 @@ return{
 		        return Promise.all(promises);
 		    } else {
 		        console.error('Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...');
-		        res.send("Error: no tuna catch found");
-		        // throw new Error('Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...');
+		        throw new Error('Transaction proposal was invalid!!');
 		    }
 		}).then((results) => {
 		    console.log('Send transaction promise and event listener promise have completed');
 		    // check the results in the order the promises were added to the promise all list
 		    if (results && results[0] && results[0].status === 'SUCCESS') {
 		        console.log('Successfully sent transaction to the orderer.');
-		        res.json(tx_id.getTransactionID())
+		        // res.json(tx_id.getTransactionID())
 		    } else {
 		        console.error('Failed to order the transaction. Error code: ' + response.status);
-		        res.send("Error: no tuna catch found");
+		        res.send("Failed to order the transaction");
 		    }
 
 		    if(results && results[1] && results[1].event_status === 'VALID') {
 		        console.log('Successfully committed the change to the ledger by the peer');
-		        res.json(tx_id.getTransactionID())
+		        res.json("The transaction " + tx_id.getTransactionID() + "was successfully commited to the ledger")
 		    } else {
-		        console.log('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
+				console.log('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
+				res.send('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
 		    }
 		}).catch((err) => {
 		    console.error('Failed to invoke successfully :: ' + err);
-		    res.send("Error: no tuna catch found");
+		    res.send(err.message);
 		});
 
 	}
