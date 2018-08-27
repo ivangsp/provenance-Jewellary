@@ -87,7 +87,7 @@ return{
 	record_product: function(req, res){
 		var id			 		 =  req.body.serialNumber;
 		var prodName 			 =  req.body.name;
-		var timestamp 	 		 = "5987633";
+		var timestamp 	 		 = "5987633"; // not using it
 		var location	 		 =  req.body.location;
 		var ownerId 			 =  req.body.ownerId;
 		var owner	 		     =  req.body.owner

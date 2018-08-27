@@ -11,7 +11,7 @@ class AddArtPiece extends Component {
 		};
 	}
 
-	onChange(e) {
+	onChange =(e) => {
 		this.setState({
 			[e.target.name]: e.target.value
 		})
@@ -22,16 +22,16 @@ class AddArtPiece extends Component {
 		});
 	}
 
-	submit() {
+	submit = () => {
 		this.setState({
 			showLoader: true
 		});
-		const fd = new FormData();
-		fd.append('image', this.state.image, this.state.image.name);
-		const params = this.state;
-		params.image = fd;
+		// const fd = new FormData();
+		// fd.append('image', this.state.image, this.state.image.name);
+		// const params = this.state;
+		// params.image = fd;
 
-		utils.recordTransaction(fd)
+		utils.recordTransaction(this.state)
 			.then(transId => {
 				this.setState({
 					showLoader: false
@@ -54,7 +54,7 @@ class AddArtPiece extends Component {
 					<label htmlFor="serialNumber" className="col-sm-2 col-form-label">serialNumber</label>
 					<div className="col-sm-10">
 						<input 
-							type="text"  className="form-control" onChange={(e) => this.onChange(e) }
+							type="text"  className="form-control" onChange={ this.onChange }
 							id="serialNumber" required name="serialNumber" 
 						/>
 					</div>
@@ -64,7 +64,7 @@ class AddArtPiece extends Component {
 					<label htmlFor="name" className="col-sm-2 col-form-label">Product Name</label>
 					<div className="col-sm-10">
 						<input 
-							type="text" className="form-control"  onChange={(e) => this.onChange(e) }
+							type="text" className="form-control"  onChange={ this.onChange }
 							id="name" required  name="name"
 						/>
 					</div>
@@ -74,7 +74,7 @@ class AddArtPiece extends Component {
 					<label htmlFor="holderName" className="col-sm-2 col-form-label">ID of Owner</label>
 					<div className="col-sm-3">
 						<input
-							type="text" className="form-control" onChange={(e) => this.onChange(e) }
+							type="text" className="form-control" onChange={ this.onChange }
 							id="holderName" required name="ownerId" 
 						/>
 					</div>
@@ -84,7 +84,7 @@ class AddArtPiece extends Component {
 					<label htmlFor="holderName" className="col-sm-2 col-form-label">Name of artisan</label>
 					<div className="col-sm-10">
 						<input
-							type="text" className="form-control" onChange={(e) => this.onChange(e) }
+							type="text" className="form-control" onChange={ this.onChange }
 							id="holderName" required name="owner" 
 						/>
 					</div>
@@ -95,7 +95,7 @@ class AddArtPiece extends Component {
 					<div className="col-sm-10">
 						<input 
 							type="text" className="form-control" name="company"
-							id="address" required onChange={(e) => this.onChange(e) }
+							id="address" required onChange={ this.onChange }
 						/>
 					</div>
 				</div>
@@ -104,7 +104,7 @@ class AddArtPiece extends Component {
 					<div className="col-sm-10">
 						<input 
 							type="text" className="form-control" name="company"
-							id="company" required onChange={(e) => this.onChange(e) }
+							id="company" required onChange={ this.onChange }
 						/>
 					</div>
 				</div>
@@ -121,7 +121,7 @@ class AddArtPiece extends Component {
 					</button>
 				</div>
 				{ this.state.showLoader && <div className="text-center  loader"></div> }
-				{ this.state.error && <div className="text-center error-msg">{this.state.error}</div>}
+				{ this.state.error && <div className="text-center error-msg">{ this.state.error }</div>}
     		</div>						
         )
     }
