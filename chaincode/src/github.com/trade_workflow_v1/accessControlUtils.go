@@ -66,3 +66,8 @@ func authenticateCarrierOrg(mspID string, certCN string) bool {
 func authenticateRegulatorOrg(mspID string, certCN string) bool {
 	return (mspID == "RegulatorOrgMSP") && (certCN == "ca.regulatororg.trade.com")
 }
+
+func authenticateBankOrg(mspID string, certCN string) bool {
+	return (mspID == "BankOrgMSP") && (certCN == "ca.bankorg.trade.com")
+}
+
