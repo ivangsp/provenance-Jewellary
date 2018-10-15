@@ -41,12 +41,14 @@ var FOUR_ORG_MEMBERS_AND_ADMIN = [{
 		name: 'member',
 		mspId: 'RegulatorOrgMSP'
 	}
-}, {
+},
+{
 	role: {
 		name: 'member',
 		mspId: 'BankOrgMSP'
 	}
-}, {
+}
+, {
 	role: {
 		name: 'admin',
 		mspId: 'TradeOrdererMSP'
@@ -84,7 +86,8 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 		name: 'member',
 		mspId: 'BankOrgMSP'
 	}
-}, {
+}, 
+{
 	role: {
 		name: 'admin',
 		mspId: 'TradeOrdererMSP'
@@ -94,28 +97,28 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 var ONE_OF_FOUR_ORG_MEMBER = {
 	identities: FOUR_ORG_MEMBERS_AND_ADMIN,
 	policy: {
-		'1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }]
+		'1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]
 	}
 };
 
 var ALL_FOUR_ORG_MEMBERS = {
 	identities: FOUR_ORG_MEMBERS_AND_ADMIN,
 	policy: {
-		'4-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }]
+		'5-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]
 	}
 };
 
 var ALL_FIVE_ORG_MEMBERS = {
 	identities: FIVE_ORG_MEMBERS_AND_ADMIN,
 	policy: {
-		'5-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]
+		'6-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }, { 'signed-by': 5 }]
 	}
 };
 
 var ALL_ORGS_EXCEPT_REGULATOR = {
 	identities: FOUR_ORG_MEMBERS_AND_ADMIN,
 	policy: {
-		'3-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }]
+		'4-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }]
 	}
 };
 
