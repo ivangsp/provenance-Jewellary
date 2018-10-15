@@ -89,3 +89,6 @@ typings/
 bin
 network/crypto-config
 network/config
+
+network/devmode/crypto-config
+network/devmode/config
