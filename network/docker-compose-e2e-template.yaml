@@ -53,7 +53,7 @@ services:
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.importerorg.trade.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/IMPORTER_CA_PRIVATE_KEY
     ports:
-      - "8054:8054"
+      - "8054:7054"
     command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.importerorg.trade.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/IMPORTER_CA_PRIVATE_KEY -b admin:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/importerorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
@@ -70,7 +70,7 @@ services:
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.carrierorg.trade.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CARRIER_CA_PRIVATE_KEY
     ports:
-      - "9054:9054"
+      - "9054:7054"
     command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.carrierorg.trade.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CARRIER_CA_PRIVATE_KEY -b admin:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/carrierorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
@@ -87,7 +87,7 @@ services:
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.regulatororg.trade.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/REGULATOR_CA_PRIVATE_KEY
     ports:
-      - "10054:10054"
+      - "10054:7054"
     command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.regulatororg.trade.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/REGULATOR_CA_PRIVATE_KEY -b admin:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/regulatororg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
@@ -104,7 +104,7 @@ services:
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.bankorg.trade.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/BANK_CA_PRIVATE_KEY
     ports:
-      - "11054:11054"
+      - "11054:7054"
     command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.bankorg.trade.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/BANK_CA_PRIVATE_KEY -b admin:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/bankorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
