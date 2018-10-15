@@ -19,9 +19,9 @@ In this application I will be using hyperledger fabric <br>
 ```
 provenance-Jewellary
 |   ReadMe.md
-|---basic-network
+|---network
 |---chaincode
-|   |   tuna-chaincode.go
+|   |   tradeworkflow_v1.go
 |---client-app
 |   |   src
 |   |   public
@@ -36,33 +36,14 @@ provenance-Jewellary
 |   |   startFabric.sh
 |
 ```
+
 ## setup
-1. ### [Download Fabric sample Images](https://hyperledger-fabric.readthedocs.io/en/release-1.1/samples.html#binaries)
 
-    Determine a location on your machine where you want to place the Hyperledger Fabric samples applications repository and open that in a terminal window. Then, execute the following commands:
-    ```
-    git clone -b master https://github.com/hyperledger/fabric-samples.git
-    cd fabric-samples
-    git checkout {TAG}
-    ```
-    Please execute the following command from within the directory into which you will extract the platform-specific binaries:
-    ```
-    curl -sSL https://goo.gl/6wtTN5 | bash -s 1.1.0
-    ```
-2. ### Runing the application
+### 1. [Setting up the Network](network)
 
-- clone the project and ```cd server-app ``` folder and install all the depedencies.
-- start the network by executing the following command ``` ./startFabric.sh ``` 
-- Register the user on the chaincode by running the following commands
-``` 
-    node registerAdmin.js
-    node registeruser.js
-```
-- run the server using the following commands
-``` node server.js ```
+### 2. [setting up the smart contract or chain code](chaincode)
 
-- Run the frontEnd application.
-    - cd into  "client-app" directory
-    - install all the depedencies ``` npm install ```
-    - start the application ``` npm start ```
+### 3. The [middleware](middleware) folder contains wrapper functions that use the Fabric SDK library to implement channel and chaincode operations.
+
+
 
