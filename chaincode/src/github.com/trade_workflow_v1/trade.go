@@ -280,3 +280,58 @@ func (t *TradeWorkflowChaincode) issueLC(stub shim.ChaincodeStubInterface, creat
 
 	return shim.Success(nil)
 }
+
+// Accept an L/C
+func (t *TradeWorkflowChaincode) acceptLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var lcKey string
+	var letterOfCreditBytes []byte
+	var letterOfCredit *LetterOfCredit
+	var err error
+
+	// Access control: Only an Exporter Org member can invoke this transaction
+	if !t.testMode && !authenticateExporterOrg(creatorOrg, creatorCertIssuer) {
+		return shim.Error("Caller not a member of Exporter Org. Access denied.")
+	}
+
+	if len(args) != 1 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {Trade ID}. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	// Lookup L/C from the ledger
+	// lcKey, err = getLCKey(stub, args[0])
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
+	letterOfCreditBytes, err = stub.GetState(args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if letterOfCredit.Status == ACCEPTED {
+		fmt.Printf("L/C for trade %s already accepted", args[0])
+	} else if letterOfCredit.Status == REQUESTED {
+		fmt.Printf("L/C for trade %s has not been issued", args[0])
+		return shim.Error("L/C not issued yet")
+	} else {
+		letterOfCredit.Status = ACCEPTED
+		letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+		if err != nil {
+			return shim.Error("Error marshaling L/C structure")
+		}
+		// Write the state to the ledger
+		err = stub.PutState(args[0], letterOfCreditBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	}
+	fmt.Printf("L/C acceptance for trade %s recorded\n", args[0])
+
+	return shim.Success(nil)
+}
