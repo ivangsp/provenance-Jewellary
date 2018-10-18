@@ -165,9 +165,67 @@ func (t *TradeChaincode) acceptTrade(stub shim.ChaincodeStubInterface, creatorOr
 
 /*
 	* request letter of credit
-	* This action is performed by member of the exporter
-
+	* This action is performed by member of the importer Org
 */
-// func (t *TradeChaincode) requestLetterOfCredit(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeWorkflowChaincode) requestLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var tradeKey, lcKey string
+	var tradeAgreementBytes, letterOfCreditBytes, exporterBytes []byte
+	var tradeAgreement *TradeAgreement
+	var letterOfCredit *LetterOfCredit
+	var err error
 
-// }
+	// Access control: Only an Importer Org member can invoke this transaction
+	if !t.testMode && !authenticateImporterOrg(creatorOrg, creatorCertIssuer) {
+		return shim.Error("Caller not a member of Importer Org. Access denied.")
+	}
+
+	if len(args) != 1 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {Trade ID}. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	// Lookup trade agreement from the ledger
+	tradeAgreementBytes, err = stub.GetState(args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if len(tradeAgreementBytes) == 0 {
+		err = errors.New(fmt.Sprintf("No record found for trade ID %s", args[0]))
+		return shim.Error(err.Error())
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Verify that the trade has been agreed to
+	if tradeAgreement.Status != ACCEPTED {
+		return shim.Error("Trade has not been accepted by the parties")
+	}
+
+	// Lookup exporter (L/C beneficiary)
+	beneficiary := tradeAgreement.Product.Owner.Username
+	amount := tradeAgreement.Product.Price;
+
+	letterOfCredit = &LetterOfCredit{Beneficiary: beneficiary, Amount: amount, Status: REQUESTED, ExpirationDate: ""}
+	letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+	if err != nil {
+		return shim.Error("Error marshaling letter of credit structure")
+	}
+
+	// Write the state to the ledger
+	lcKey, err = getLCKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(lcKey, letterOfCreditBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Letter of Credit request for trade %s recorded\n", args[0])
+
+	return shim.Success(nil)
+}
