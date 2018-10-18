@@ -229,3 +229,54 @@ func (t *TradeWorkflowChaincode) requestLC(stub shim.ChaincodeStubInterface, cre
 
 	return shim.Success(nil)
 }
+
+// Issue an L/C
+func (t *TradeWorkflowChaincode) issueLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var lcKey string
+	var letterOfCreditBytes []byte
+	var letterOfCredit *LetterOfCredit
+	var err error
+
+	// Access control: Only Bank Org member can invoke this transaction
+	if !t.testMode && !authenticateBankOrg(creatorOrg, creatorCertIssuer) {
+		return shim.Error("Caller not a member of Bank Org. Access denied.")
+	}
+
+	if len(args) < 2 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: { L/C ID, Expiry Date}, Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	// Lookup L/C from the ledger
+	letterOfCreditBytes, err = stub.GetState(args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if letterOfCredit.Status == ISSUED {
+		fmt.Printf("L/C for trade %s already issued", args[0])
+	} else if letterOfCredit.Status == ACCEPTED {
+		fmt.Printf("L/C for trade %s already accepted", args[0])
+	} else {
+		letterOfCredit.ExpirationDate = args[1]
+		letterOfCredit.Status = ISSUED
+		letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+		if err != nil {
+			return shim.Error("Error marshaling L/C structure")
+		}
+		// Write the state to the ledger
+		err = stub.PutState(args[0], letterOfCreditBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	}
+	fmt.Printf("L/C issuance for trade %s recorded\n", args[0])
+
+	return shim.Success(nil)
+}
