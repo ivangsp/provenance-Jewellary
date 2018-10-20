@@ -165,7 +165,6 @@ func (t *TradeChaincode) requestTrade(stub shim.ChaincodeStubInterface, creatorO
 // * accept trade agreement
 // * param [tradeId]
 func (t *TradeChaincode) acceptTrade(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var tradeKey string
 	var tradeAgreement *TradeAgreement
 	var tradeAgreementBytes []byte
 	var err error
@@ -221,8 +220,7 @@ func (t *TradeChaincode) acceptTrade(stub shim.ChaincodeStubInterface, creatorOr
 	* This action is performed by member of the importer Org
 */
 func (t *TradeChaincode) requestLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var tradeKey, lcKey string
-	var tradeAgreementBytes, letterOfCreditBytes, exporterBytes []byte
+	var tradeAgreementBytes []byte
 	var tradeAgreement *TradeAgreement
 	var letterOfCredit LetterOfCredit
 	var err error
@@ -283,7 +281,6 @@ func (t *TradeChaincode) requestLC(stub shim.ChaincodeStubInterface, creatorOrg 
 
 // Issue an L/C
 func (t *TradeChaincode) issueLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var lcKey string
 	var tradeAgreementBytes []byte
 	// var letterOfCredit *LetterOfCredit
 	var tradeAgreement *TradeAgreement
@@ -341,7 +338,6 @@ func (t *TradeChaincode) issueLC(stub shim.ChaincodeStubInterface, creatorOrg st
 // Accept an L/C
 // This is performed Bank org
 func (t *TradeChaincode) acceptLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var lcKey string
 	var tradeAgreementBytes []byte
 	var tradeAgreement *TradeAgreement
 	var err error
@@ -591,7 +587,6 @@ func (t *TradeChaincode) makePayment(stub shim.ChaincodeStubInterface, creatorOr
 		return shim.Error(err.Error())
 	}
 
-	var message string
 	if shipmentReceipt.Status == ACCEPTED {
 		amount = tradeAgreement.Amount
 		tradeAgreement.Payment = amount
