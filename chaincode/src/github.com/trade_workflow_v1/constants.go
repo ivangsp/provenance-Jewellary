@@ -33,6 +33,7 @@ const (
 	REQUESTED	= "REQUESTED"
 	ISSUED		= "ISSUED"
 	ACCEPTED	= "ACCEPTED"
+	DELIVERED   = "DELIVERED"
 )
 
 // Location values
