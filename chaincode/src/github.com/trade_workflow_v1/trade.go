@@ -16,6 +16,60 @@ type TradeChaincode struct{
 	testMode bool
 }
 
+
+func (t *TradeChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+	fmt.Println("Initializing Trade Workflow")
+	return shim.Success(nil)
+}
+
+func (t *TradeChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+	var creatorOrg, creatorCertIssuer string
+	var err error
+
+	fmt.Println("TradeWorkflow Invoke")
+
+	if !t.testMode {
+		creatorOrg, creatorCertIssuer, err = getTxCreatorInfo(stub)
+		if err != nil {
+			err = fmt.Errorf("Error extracting creator identity info: %s\n", err.Error())
+			return shim.Error(err.Error())
+		}
+		fmt.Printf("TradeWorkflow Invoke by '%s', '%s'\n", creatorOrg, creatorCertIssuer)
+	}
+
+	function, args := stub.GetFunctionAndParameters()
+	if function == "createAsset" {
+		// Exporter creates an asset on the ledger
+		return t.createAsset(stub, creatorOrg, creatorCertIssuer, args)	
+	} else if function == "requestTrade" {
+		// Importer requests a trade
+		return t.requestTrade(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "acceptTrade" {
+		// Exporter accepts a trade
+		return t.acceptTrade(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "requestLC" {
+		// Importer requests for L/c
+		return t.requestLC(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "issueLC" {
+		// Bank issues the letter of credit
+		return t.issueLC(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "requestShipment" {
+		// carried out by the exporter org
+		return t.requestShipment(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "acceptShipment" {
+		// carried out by the Carrier org
+		return t.acceptShipment(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "makePayment" {
+		// The bank makes payment to the exporter
+		return t.makePayment(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "updateShipment" {
+		// Carrier updates the shipment location
+		return t.updateShipment(stub, creatorOrg, creatorCertIssuer, args)
+	}
+
+
+	return shim.Error("Invalid invoke function name")
+}
 //	create an assset on the blockchain
 //	@params - Array of length 4
 //	name of the asset		Description of the asset	price  			owner
@@ -166,7 +220,7 @@ func (t *TradeChaincode) acceptTrade(stub shim.ChaincodeStubInterface, creatorOr
 	* request letter of credit
 	* This action is performed by member of the importer Org
 */
-func (t *TradeWorkflowChaincode) requestLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeChaincode) requestLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var tradeKey, lcKey string
 	var tradeAgreementBytes, letterOfCreditBytes, exporterBytes []byte
 	var tradeAgreement *TradeAgreement
@@ -228,7 +282,7 @@ func (t *TradeWorkflowChaincode) requestLC(stub shim.ChaincodeStubInterface, cre
 }
 
 // Issue an L/C
-func (t *TradeWorkflowChaincode) issueLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeChaincode) issueLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var lcKey string
 	var tradeAgreementBytes []byte
 	// var letterOfCredit *LetterOfCredit
@@ -286,7 +340,7 @@ func (t *TradeWorkflowChaincode) issueLC(stub shim.ChaincodeStubInterface, creat
 
 // Accept an L/C
 // This is performed Bank org
-func (t *TradeWorkflowChaincode) acceptLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeChaincode) acceptLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var lcKey string
 	var tradeAgreementBytes []byte
 	var tradeAgreement *TradeAgreement
@@ -346,7 +400,7 @@ func (t *TradeWorkflowChaincode) acceptLC(stub shim.ChaincodeStubInterface, crea
 
 // request for shipment of goods to the buyer(importer)
 // @param [tradeAgreementId, exporterName]
-func (t *TradeWorkflowChaincode) requestShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeChaincode) requestShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var err error
 	var tradeAgreement *TradeAgreement
 	var tradeAgreementBytes []byte
@@ -413,7 +467,7 @@ func (t *TradeWorkflowChaincode) requestShipment(stub shim.ChaincodeStubInterfac
 
 // accept shipment of goods
 // @param [shipmentId, carrierName, fee]
-func (t *TradeWorkflowChaincode) acceptShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeChaincode) acceptShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var err error
 	var shipmentReceipt *ShipmentReceipt
 	var shipmentReceiptBytes []byte
@@ -481,7 +535,8 @@ func (t *TradeWorkflowChaincode) acceptShipment(stub shim.ChaincodeStubInterface
 
 // make payment
 // @params [shipmentReceiptId]
-func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+// transfer ownership if product has been delivered
+func (t *TradeChaincode) makePayment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var tradeAgreement *TradeAgreement
 	var err error
 	var tradeAgreementBytes []byte
@@ -538,44 +593,60 @@ func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, c
 
 	var message string
 	if shipmentReceipt.Status == ACCEPTED {
-		amount = tradeAgreement.Amount/2
-		message = "first payment has been made"
+		amount = tradeAgreement.Amount
+		tradeAgreement.Payment = amount
+
+		// update the ledger
+		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+		if err != nil {
+			return shim.Error("Error marshaling tradeAgreement  structure")	
+		}
+		// update the tradeAgreement with  the new paymen
+		err = stub.PutState(shipmentReceipt.TradeAgreementId, tradeAgreementBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		return shim.Success(nil)
+
 	} else if (shipmentReceipt.Status == DELIVERED) {
 		amount = tradeAgreement.Amount
-		message = "All payment been made"
+		tradeAgreement.Payment = amount
+
+		// update the ledger
+		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+		if err != nil {
+			return shim.Error("Error marshaling tradeAgreement  structure")	
+		}
+		// update the tradeAgreement with  the new paymen
+		err = stub.PutState(shipmentReceipt.TradeAgreementId, tradeAgreementBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		// transfer ownership
+		product := tradeAgreement.Product
+		product.Owner.Username = tradeAgreement.Buyer
+		productBytes, er := json.Marshal(product)
+		if er != nil {
+			return shim.Error("Error marshalling product structure")
+		}
+		
+		// write to the ledger
+		err = stub.PutState(product.Id, productBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		return shim.Success(nil)
+
 	}
-
-	tradeAgreement.Payment = amount
-	tradeAgreementBytes, err = json.Marshal(tradeAgreement)
-	if err != nil {
-		return shim.Error("Error marshaling tradeAgreement  structure")	
-	}
-
-	// Write the state to the ledger
-	err = stub.PutState(shipmentReceipt.TradeAgreementId, tradeAgreementBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	fmt.Printf(message)
-
-	return shim.Success(nil)
-
-
-
-
-
-
-
-
+	return shim.Error("Invalid shipment Status")
 	
-
-	return shim.Success(nil)
 }
 
 
 // Update shipment location; we will only allow SOURCE and DESTINATION as valid locations for this contract
 // @param [shipmentId, shipmenntStatus]
-func (t *TradeWorkflowChaincode) updateShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+func (t *TradeChaincode) updateShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var shipmentReceipt ShipmentReceipt
 	var shipmentReceiptBytes []byte
 	var err error
@@ -620,4 +691,13 @@ func (t *TradeWorkflowChaincode) updateShipment(stub shim.ChaincodeStubInterface
 	fmt.Printf("Shipment accepted and shipment Receipt issued")
 
 	return shim.Success(nil)
+}
+
+func main() {
+	twc := new(TradeChaincode)
+	twc.testMode = false
+	err := shim.Start(twc)
+	if err != nil {
+		fmt.Printf("Error starting Trade Workflow chaincode: %s", err)
+	}
 }
