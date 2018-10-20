@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -478,7 +479,6 @@ func (t *TradeWorkflowChaincode) acceptShipment(stub shim.ChaincodeStubInterface
 	
 }
 
-
 // make payment
 // @params [shipmentReceiptId]
 func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
@@ -568,6 +568,56 @@ func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, c
 
 
 	
+
+	return shim.Success(nil)
+}
+
+
+// Update shipment location; we will only allow SOURCE and DESTINATION as valid locations for this contract
+// @param [shipmentId, shipmenntStatus]
+func (t *TradeWorkflowChaincode) updateShipment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var shipmentReceipt ShipmentReceipt
+	var shipmentReceiptBytes []byte
+	var err error
+
+	// Access control: Only a Carrier Org member can invoke this transaction
+	if !t.testMode && !authenticateCarrierOrg(creatorOrg, creatorCertIssuer) {
+		return shim.Error("Caller not a member of Carrier Org. Access denied.")
+	}
+
+	if len(args) != 2 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {Trade ID, Location}. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	shipmentReceiptBytes, err = stub.GetState(args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if len(shipmentReceiptBytes) == 0 {
+		fmt.Printf("Shipment for trade %s has not been prepared yet", args[0])
+		return shim.Error("Shipment not prepared yet")
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(shipmentReceiptBytes, &shipmentReceipt)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	shipmentReceipt.Status = strings.ToUpper(args[1])
+
+	shipmentReceiptBytes, err = json.Marshal(shipmentReceipt)
+	if err != nil {
+		return shim.Error("Error marshaling shipmentReceipt  structure")	
+	}
+
+	// Write the state to the ledger
+	err = stub.PutState(args[0], shipmentReceiptBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Shipment accepted and shipment Receipt issued")
 
 	return shim.Success(nil)
 }
