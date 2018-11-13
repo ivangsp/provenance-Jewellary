@@ -22,6 +22,10 @@ volumes:
   peer0.importerorg.trade.com:
   peer0.carrierorg.trade.com:
   peer0.regulatororg.trade.com:
+<<<<<<< HEAD
+=======
+  peer0.bankorg.trade.com:
+>>>>>>> networkSetup
 
 networks:
   trade:
@@ -93,6 +97,26 @@ services:
     container_name: ca_peerRegulatorOrg
     networks:
       - trade
+<<<<<<< HEAD
+=======
+  
+  bank-ca:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-bankorg
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.bankorg.trade.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/BANK_CA_PRIVATE_KEY
+    ports:
+      - "11054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.bankorg.trade.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/BANK_CA_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/bankorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerBankOrg
+    networks:
+      - trade
+>>>>>>> networkSetup
 
   orderer.trade.com:
     extends:
@@ -133,3 +157,14 @@ services:
       service: peer0.regulatororg.trade.com
     networks:
       - trade
+<<<<<<< HEAD
+=======
+
+  peer0.bankorg.trade.com:
+    container_name: peer0.bankorg.trade.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.bankorg.trade.com
+    networks:
+      - trade
+>>>>>>> networkSetup

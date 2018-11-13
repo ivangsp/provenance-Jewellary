@@ -61,7 +61,27 @@
 				"server-hostname": "peer0.regulatororg.trade.com",
 				"tls_cacerts": "../network/crypto-config/peerOrganizations/regulatororg.trade.com/peers/peer0.regulatororg.trade.com/msp/tlscacerts/tlsca.regulatororg.trade.com-cert.pem"
 			}
+<<<<<<< HEAD
 		}
 	}
 }
 																																																
+=======
+        },
+        "bankorg": {
+			"name": "bankOrg",
+			"mspid": "BankOrgMSP",
+			"ca": {
+				"url": "https://localhost:11054",
+				"name": "ca-bankorg"
+			},
+			"peer1": {
+				"requests": "grpcs://localhost:11051",
+				"events": "grpcs://localhost:11053",
+				"server-hostname": "peer0.bankorg.trade.com",
+				"tls_cacerts": "../network/crypto-config/peerOrganizations/bankorg.trade.com/peers/peer0.bankorg.trade.com/msp/tlscacerts/tlsca.bankorg.trade.com-cert.pem"
+			}
+		}
+	}
+}
+>>>>>>> networkSetup

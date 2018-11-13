@@ -40,6 +40,10 @@ Profiles:
                     - *ImporterOrg
                     - *CarrierOrg
                     - *RegulatorOrg
+<<<<<<< HEAD
+=======
+                    - *BankOrg
+>>>>>>> networkSetup
     FourOrgsTradeChannel:
         Consortium: TradeConsortium
         Application:
@@ -49,6 +53,10 @@ Profiles:
                 - *ImporterOrg
                 - *CarrierOrg
                 - *RegulatorOrg
+<<<<<<< HEAD
+=======
+                - *BankOrg
+>>>>>>> networkSetup
             Capabilities:
                 <<: *ApplicationCapabilities
 
@@ -143,6 +151,26 @@ Organizations:
             - Host: peer0.regulatororg.trade.com
               Port: 7051
 
+<<<<<<< HEAD
+=======
+    - &BankOrg
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: BankOrgMSP
+
+        # ID to load the MSP definition as
+        ID: BankOrgMSP
+
+        MSPDir: crypto-config/peerOrganizations/bankorg.trade.com/msp
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.bankorg.trade.com
+              Port: 7051
+
+>>>>>>> networkSetup
 ################################################################################
 #
 #   SECTION: Orderer

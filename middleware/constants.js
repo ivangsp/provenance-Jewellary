@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 						/*
+=======
+/*
+>>>>>>> networkSetup
  * Copyright 2018 IBM All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
@@ -41,7 +45,18 @@ var FOUR_ORG_MEMBERS_AND_ADMIN = [{
 		name: 'member',
 		mspId: 'RegulatorOrgMSP'
 	}
+<<<<<<< HEAD
 }, {
+=======
+},
+{
+	role: {
+		name: 'member',
+		mspId: 'BankOrgMSP'
+	}
+}
+, {
+>>>>>>> networkSetup
 	role: {
 		name: 'admin',
 		mspId: 'TradeOrdererMSP'
@@ -73,7 +88,18 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 		name: 'member',
 		mspId: 'RegulatorOrgMSP'
 	}
+<<<<<<< HEAD
 }, {
+=======
+},
+{
+	role: {
+		name: 'member',
+		mspId: 'BankOrgMSP'
+	}
+}, 
+{
+>>>>>>> networkSetup
 	role: {
 		name: 'admin',
 		mspId: 'TradeOrdererMSP'
@@ -83,28 +109,44 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 var ONE_OF_FOUR_ORG_MEMBER = {
 	identities: FOUR_ORG_MEMBERS_AND_ADMIN,
 	policy: {
+<<<<<<< HEAD
 		'1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }]
+=======
+		'1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]
+>>>>>>> networkSetup
 	}
 };
 
 var ALL_FOUR_ORG_MEMBERS = {
 	identities: FOUR_ORG_MEMBERS_AND_ADMIN,
 	policy: {
+<<<<<<< HEAD
 		'4-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }]
+=======
+		'5-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]
+>>>>>>> networkSetup
 	}
 };
 
 var ALL_FIVE_ORG_MEMBERS = {
 	identities: FIVE_ORG_MEMBERS_AND_ADMIN,
 	policy: {
+<<<<<<< HEAD
 		'5-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]
+=======
+		'6-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }, { 'signed-by': 5 }]
+>>>>>>> networkSetup
 	}
 };
 
 var ALL_ORGS_EXCEPT_REGULATOR = {
 	identities: FOUR_ORG_MEMBERS_AND_ADMIN,
 	policy: {
+<<<<<<< HEAD
 		'3-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }]
+=======
+		'4-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }]
+>>>>>>> networkSetup
 	}
 };
 
@@ -130,6 +172,10 @@ var EXPORTER_ORG = 'exporterorg';
 var EXPORTING_ENTITY_ORG = 'exportingentityorg';
 var CARRIER_ORG = 'carrierorg';
 var REGULATOR_ORG = 'regulatororg';
+<<<<<<< HEAD
+=======
+var BANK_ORG = 'bankorg';
+>>>>>>> networkSetup
 
 var CHANNEL_NAME = 'tradechannel';
 var CHAINCODE_PATH = 'github.com/trade_workflow';
@@ -151,7 +197,12 @@ module.exports = {
 	EXPORTER_ORG: EXPORTER_ORG,
 	EXPORTING_ENTITY_ORG: EXPORTING_ENTITY_ORG,
 	CARRIER_ORG: CARRIER_ORG,
+<<<<<<< HEAD
 	REGULATOR_ORG: REGULATOR_ORG,
+=======
+    REGULATOR_ORG: REGULATOR_ORG,
+    BANK_ORG:BANK_ORG,
+>>>>>>> networkSetup
 	CHANNEL_NAME: CHANNEL_NAME,
 	CHAINCODE_PATH: CHAINCODE_PATH,
 	CHAINCODE_ID: CHAINCODE_ID,

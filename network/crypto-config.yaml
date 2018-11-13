@@ -112,3 +112,18 @@ PeerOrgs:
       Count: 1
     Users:
       Count: 1
+<<<<<<< HEAD
+=======
+
+ # ---------------------------------------------------------------------------
+  # BankOrg
+ # ---------------------------------------------------------------------------
+  - Name: BankOrg
+    Domain: bankorg.trade.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+
+>>>>>>> networkSetup

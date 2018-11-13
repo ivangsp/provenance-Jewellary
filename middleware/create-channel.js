@@ -57,6 +57,10 @@ function createChannel(channel_name, constants) {
 		Constants = constants;
 	}
 	ClientUtils.init(Constants);
+<<<<<<< HEAD
+=======
+	debugger;
+>>>>>>> networkSetup
 	Client.addConfigFile(path.join(__dirname, Constants.networkConfig));
 	ORGS = Client.getConfigSetting(Constants.networkId);
 	PEER_ORGS = [];
@@ -145,11 +149,19 @@ function createChannel(channel_name, constants) {
 
 		// (OPTIONAL) sign the config as the orderer admin
 		var signature = client.signChannelConfig(config);
+<<<<<<< HEAD
 		console.log('Successfully signed config update as orderer admin');
 
 		// collect signature from orderer org admin
 		signatures.push(signature);
 
+=======
+		console.log('Successfully signed config update as orderer admin: signature<<', signature);
+
+		// collect signature from orderer org admin
+		signatures.push(signature);
+		Constants
+>>>>>>> networkSetup
 		// build up the create request
 		let tx_id = client.newTransactionID();
 		var request = {
@@ -167,14 +179,26 @@ function createChannel(channel_name, constants) {
 	})
 	.then((result) => {
 		logger.debug('Channel creation complete; response ::%j',result);
+<<<<<<< HEAD
+=======
+		debugger;
+>>>>>>> networkSetup
 		if(result.status && result.status === 'SUCCESS') {
 			console.log('Successfully created the channel.');
 			return ClientUtils.sleep(5000);
 		} else {
+<<<<<<< HEAD
 			throw new Error('Failed to create the channel. ');
 		}
 	}, (err) => {
 		throw new Error('Failed to create the channel: ' + err.stack ? err.stack : err);
+=======
+			console.log('<<<<', result);
+			throw new Error('1.Failed to create the channel. ');
+		}
+	}, (err) => {
+		throw new Error('2.Failed to create the channel: ' + err.stack ? err.stack : err);
+>>>>>>> networkSetup
 	})
 	.then((nothing) => {
 		console.log('Successfully waited to make sure new channel was created.');
