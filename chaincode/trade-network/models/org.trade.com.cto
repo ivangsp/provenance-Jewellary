@@ -1,0 +1,239 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Write your model definitions here
+ */
+
+namespace org.trade.com
+
+
+
+// ENUMS
+enum Status {
+  o AWAITING_APPROVAL
+  o APPROVED
+  o SHIPPED
+  o RECEIVED
+  o READY_FOR_PAYMENT
+  o CLOSED
+  o PAID 
+  o PAYMENT_MADE
+  o REJECTED
+  o ACCEPTED
+}
+
+enum Category {
+  o TRADER 
+  o ARTISAN
+}
+
+// CONCEPTS
+concept Rule {
+  o String ruleId
+  o String ruleText
+}
+
+concept ProductDetails {
+  o String name
+//  o Integer quantity
+  o Double price
+}
+
+asset ProductCategory identified by id {
+ o String id
+ o String name
+}
+
+asset Product identified by productId {
+  o String productId
+  --> ProductCategory category
+  --> Trader owner
+  o DateTime date
+  o String location
+  o String name
+  o Double price
+  o String description
+}
+
+asset TradeAgreement identified by tradeAgreementId {
+  o String tradeAgreementId
+  --> Product product
+  --> Trader buyer
+  --> Trader seller
+  o Rule[] rules optional
+  o Integer quantity
+  o Status status
+}
+
+asset LetterOfCredit identified by letterId {
+  o String letterId
+  --> Trader benefitiary
+  --> Trader applicant
+  --> Bank issuingBank
+  --> Bank exportingBank
+  --> TradeAgreement tradeAgreement
+  o Rule[] rules
+  o Status status
+  o String [] evidence
+  --> Person [] approval
+  o String closeReason optional
+}
+
+asset BillOfLanding identified by billlOfLandingId {
+  o String billlOfLandingId
+  o ProductDetails productDetails
+  o String destination
+  o String origin
+  
+}
+
+
+// PARTICIPANTS
+participant Bank identified by bankID {
+  o String bankID
+  o String name
+}
+
+// participant Carrier identified by carrierId {
+//   o String carrierId
+//   o String name
+//   o String companyName
+// }
+
+abstract participant Person identified by personId {
+  o String personId
+  o String name
+  o String lastName optional
+  --> Bank bank
+}
+
+participant Trader extends Person {
+  o String companyName optional
+  o Category category
+}
+
+participant BankEmployee extends Person {
+}
+
+
+// TRANSACTIONS + EVENTS
+
+transaction RegisterProduct {
+  o String productId
+  o DateTime date
+  o String location
+  o String name
+  o Double price
+  o String description
+  --> Trader owner
+  --> ProductCategory category
+}
+event RegisterProductEvent {
+  o Product product
+}
+transaction InitialTradeRequest {
+  o String id
+  --> Trader buyer
+  --> Trader seller
+  --> Product product
+  o Double quantity
+  o Rule[] rules optional
+}
+
+event InitialTradeRequestEvent {
+  --> TradeAgreement tradeAgreement
+}
+
+transaction ApproveTradeRequest {
+  --> TradeAgreement tradeAgreement
+  o Status status
+  o String rejectionReason optional
+  --> Person approvingPerson
+}
+
+event ApproveTradeRequestEvent {
+  --> TradeAgreement tradeAgreement
+  o String rejectionReason optional
+}
+
+transaction RequestLetterOfCredit {
+  o String letterId
+  --> Trader benefitiary
+  --> Trader applicant
+  o Rule[] rules
+  --> TradeAgreement tradeAgreement
+}
+
+event RequestLetterOfCreditEvent {
+  --> LetterOfCredit letter
+}
+
+transaction ApproveLetterOfCredit {
+  --> LetterOfCredit letter
+  --> Person approvingParty
+
+}
+
+event ApproveLetterOfCreditEvent {
+  --> LetterOfCredit letter
+  --> Person approvingParty
+}
+
+transaction RejectLetterOfCredit {
+  --> LetterOfCredit letter
+  o String closeReason
+}
+
+event RejectLetterOfCreditEvent {
+  --> LetterOfCredit letter
+  o String closeReason
+
+}
+
+
+transaction ShipProduct {
+  --> LetterOfCredit letter
+  o String evidence
+}
+
+event ShipProductEvent {
+  --> LetterOfCredit letter
+}
+
+transaction ReceiveProduct {
+  --> LetterOfCredit letter
+}
+
+event ReceiveProductEvent {
+  --> LetterOfCredit letter
+}
+
+transaction MakePayment {
+  --> LetterOfCredit letter
+}
+event MakePaymentEvent {
+  --> LetterOfCredit letter
+}
+
+transaction PaymentReceived {
+  --> LetterOfCredit letter
+}
+event PaymentReceivedEvent {
+  --> LetterOfCredit letter
+}
+
+// TRANSACTIONS FOR SETUP
+transaction CreateDemoParticipants {
+}
