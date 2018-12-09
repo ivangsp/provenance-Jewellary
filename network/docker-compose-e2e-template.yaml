@@ -16,22 +16,11 @@
 
 version: '2'
 
-volumes:
-  orderer.trade.com:
-  peer0.exporterorg.trade.com:
-  peer0.importerorg.trade.com:
-  peer0.carrierorg.trade.com:
-  peer0.regulatororg.trade.com:
-<<<<<<< HEAD
-=======
-  peer0.bankorg.trade.com:
->>>>>>> networkSetup
-
 networks:
-  trade:
+  byfn:
 services:
   exporter-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
+    image: hyperledger/fabric-ca
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-exporterorg
@@ -45,10 +34,10 @@ services:
       - ./crypto-config/peerOrganizations/exporterorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca_peerExporterOrg
     networks:
-      - trade
+      - byfn
 
   importer-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
+    image: hyperledger/fabric-ca
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-importerorg
@@ -62,10 +51,10 @@ services:
       - ./crypto-config/peerOrganizations/importerorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca_peerImporterOrg
     networks:
-      - trade
+      - byfn
 
   carrier-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
+    image: hyperledger/fabric-ca
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-carrierorg
@@ -79,10 +68,10 @@ services:
       - ./crypto-config/peerOrganizations/carrierorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca_peerCarrierOrg
     networks:
-      - trade
+      - byfn
 
   regulator-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
+    image: hyperledger/fabric-ca
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-regulatororg
@@ -96,12 +85,10 @@ services:
       - ./crypto-config/peerOrganizations/regulatororg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca_peerRegulatorOrg
     networks:
-      - trade
-<<<<<<< HEAD
-=======
+      - byfn
   
   bank-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
+    image: hyperledger/fabric-ca
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-bankorg
@@ -115,8 +102,7 @@ services:
       - ./crypto-config/peerOrganizations/bankorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca_peerBankOrg
     networks:
-      - trade
->>>>>>> networkSetup
+      - byfn
 
   orderer.trade.com:
     extends:
@@ -124,7 +110,7 @@ services:
       service: orderer.trade.com
     container_name: orderer.trade.com
     networks:
-      - trade
+      - byfn
 
   peer0.exporterorg.trade.com:
     container_name: peer0.exporterorg.trade.com
@@ -132,7 +118,7 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.exporterorg.trade.com
     networks:
-      - trade
+      - byfn
 
   peer0.importerorg.trade.com:
     container_name: peer0.importerorg.trade.com
@@ -140,7 +126,7 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.importerorg.trade.com
     networks:
-      - trade
+      - byfn
 
   peer0.carrierorg.trade.com:
     container_name: peer0.carrierorg.trade.com
@@ -148,7 +134,7 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.carrierorg.trade.com
     networks:
-      - trade
+      - byfn
 
   peer0.regulatororg.trade.com:
     container_name: peer0.regulatororg.trade.com
@@ -156,9 +142,7 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.regulatororg.trade.com
     networks:
-      - trade
-<<<<<<< HEAD
-=======
+      - byfn
 
   peer0.bankorg.trade.com:
     container_name: peer0.bankorg.trade.com
@@ -166,5 +150,4 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.bankorg.trade.com
     networks:
-      - trade
->>>>>>> networkSetup
+      - byfn

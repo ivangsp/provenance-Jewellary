@@ -1,10 +1,2 @@
 docker-compose-e2e.yaml
-channel-artifacts
-crypto-config
-client-certs
-logs
-<<<<<<< HEAD
-add_org/docker-compose-exportingEntityOrg.yaml
-=======
-add_org/docker-compose-exportingEntityOrg.yaml
->>>>>>> networkSetup
+docker-compose-cas.yaml

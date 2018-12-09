@@ -37,7 +37,6 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   - Name: ExporterOrg
     Domain: exporterorg.trade.com
-    EnableNodeOUs: true
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------
@@ -87,17 +86,15 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   - Name: ImporterOrg
     Domain: importerorg.trade.com
-    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
-      Count: 2
+      Count: 1
   # ---------------------------------------------------------------------------
   # CarrierOrg
   # ---------------------------------------------------------------------------
   - Name: CarrierOrg
     Domain: carrierorg.trade.com
-    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
@@ -107,23 +104,18 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   - Name: RegulatorOrg
     Domain: regulatororg.trade.com
-    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
       Count: 1
-<<<<<<< HEAD
-=======
 
  # ---------------------------------------------------------------------------
   # BankOrg
  # ---------------------------------------------------------------------------
   - Name: BankOrg
     Domain: bankorg.trade.com
-    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
       Count: 1
 
->>>>>>> networkSetup
