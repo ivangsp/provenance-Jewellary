@@ -34,71 +34,25 @@ enum Status {
   o ACCEPTED
 }
 
-enum Category {
-  o TRADER 
-  o ARTISAN
+enum Role {
+  o MANAGER
+  o ASST_MANAGER
 }
 
-// CONCEPTS
-concept Rule {
-  o String ruleId
-  o String ruleText
-}
-
-concept ProductDetails {
-  o String name
-//  o Integer quantity
-  o Double price
-}
-
-asset ProductCategory identified by id {
- o String id
- o String name
-}
-
-asset Product identified by productId {
-  o String productId
-  --> ProductCategory category
-  --> Trader owner
-  o DateTime date
-  o String location
+concept Product {
   o String name
   o Double price
   o String description
 }
 
-asset TradeAgreement identified by tradeAgreementId {
-  o String tradeAgreementId
-  --> Product product
-  --> Trader buyer
-  --> Trader seller
-  o Rule[] rules optional
-  o Integer quantity
-  o Status status
-}
+asset ProductItem identified by serial_number {
+  o String serial_number
+  o Product productInfo
+  --> Trader owner
+  o String location
+  o DateTime date_created
 
-asset LetterOfCredit identified by letterId {
-  o String letterId
-  --> Trader benefitiary
-  --> Trader applicant
-  --> Bank issuingBank
-  --> Bank exportingBank
-  --> TradeAgreement tradeAgreement
-  o Rule[] rules
-  o Status status
-  o String [] evidence
-  --> Person [] approval
-  o String closeReason optional
 }
-
-asset BillOfLanding identified by billlOfLandingId {
-  o String billlOfLandingId
-  o ProductDetails productDetails
-  o String destination
-  o String origin
-  
-}
-
 
 // PARTICIPANTS
 participant Bank identified by bankID {
@@ -106,134 +60,20 @@ participant Bank identified by bankID {
   o String name
 }
 
-// participant Carrier identified by carrierId {
-//   o String carrierId
-//   o String name
-//   o String companyName
-// }
-
-abstract participant Person identified by personId {
-  o String personId
-  o String name
-  o String lastName optional
+abstract participant Person identified by id {
+  o String id
+  o String username
+  o String account_number
   --> Bank bank
 }
 
 participant Trader extends Person {
   o String companyName optional
-  o Category category
-}
 
+}
 participant BankEmployee extends Person {
+  o Role role
+  
 }
 
 
-// TRANSACTIONS + EVENTS
-
-transaction RegisterProduct {
-  o String productId
-  o DateTime date
-  o String location
-  o String name
-  o Double price
-  o String description
-  --> Trader owner
-  --> ProductCategory category
-}
-event RegisterProductEvent {
-  o Product product
-}
-transaction InitialTradeRequest {
-  o String id
-  --> Trader buyer
-  --> Trader seller
-  --> Product product
-  o Double quantity
-  o Rule[] rules optional
-}
-
-event InitialTradeRequestEvent {
-  --> TradeAgreement tradeAgreement
-}
-
-transaction ApproveTradeRequest {
-  --> TradeAgreement tradeAgreement
-  o Status status
-  o String rejectionReason optional
-  --> Person approvingPerson
-}
-
-event ApproveTradeRequestEvent {
-  --> TradeAgreement tradeAgreement
-  o String rejectionReason optional
-}
-
-transaction RequestLetterOfCredit {
-  o String letterId
-  --> Trader benefitiary
-  --> Trader applicant
-  o Rule[] rules
-  --> TradeAgreement tradeAgreement
-}
-
-event RequestLetterOfCreditEvent {
-  --> LetterOfCredit letter
-}
-
-transaction ApproveLetterOfCredit {
-  --> LetterOfCredit letter
-  --> Person approvingParty
-
-}
-
-event ApproveLetterOfCreditEvent {
-  --> LetterOfCredit letter
-  --> Person approvingParty
-}
-
-transaction RejectLetterOfCredit {
-  --> LetterOfCredit letter
-  o String closeReason
-}
-
-event RejectLetterOfCreditEvent {
-  --> LetterOfCredit letter
-  o String closeReason
-
-}
-
-
-transaction ShipProduct {
-  --> LetterOfCredit letter
-  o String evidence
-}
-
-event ShipProductEvent {
-  --> LetterOfCredit letter
-}
-
-transaction ReceiveProduct {
-  --> LetterOfCredit letter
-}
-
-event ReceiveProductEvent {
-  --> LetterOfCredit letter
-}
-
-transaction MakePayment {
-  --> LetterOfCredit letter
-}
-event MakePaymentEvent {
-  --> LetterOfCredit letter
-}
-
-transaction PaymentReceived {
-  --> LetterOfCredit letter
-}
-event PaymentReceivedEvent {
-  --> LetterOfCredit letter
-}
-
-// TRANSACTIONS FOR SETUP
-transaction CreateDemoParticipants {
-}
