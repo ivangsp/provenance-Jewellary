@@ -43,6 +43,7 @@ concept Product {
   o String name
   o Double price
   o String description
+  o Integer quantity default=1
 }
 
 asset ProductItem identified by serial_number {
@@ -51,7 +52,16 @@ asset ProductItem identified by serial_number {
   --> Trader owner
   o String location
   o DateTime date_created
+}
 
+asset PurchaseOrder identified by id {
+  o String id
+  o DateTime issue_date
+  o Product [] products
+  --> Trader buyer
+  --> Trader seller
+  o Double total_Amount
+  o Status status
 }
 
 // PARTICIPANTS
@@ -72,8 +82,21 @@ participant Trader extends Person {
 
 }
 participant BankEmployee extends Person {
-  o Role role
+  o Role role optional
   
 }
+// TRANSACTIONS
+transaction CreateDemoParticipants {
+}
 
+transaction CreatePurchaseOrder {
+  o String id
+  o Product [] products
+  --> Trader buyer
+  --> Trader seller
+  o Double total_Amount
+}
 
+event CreatePurchaseOrderEvent {
+  o PurchaseOrder po
+}
