@@ -8,3 +8,11 @@ export const createAsset = params =>
     .catch(e => {
       console.warn('ERRROR>>', e);
     });
+
+export const fetchAlProducts = () =>
+  axios
+    .get(`${BASE_URL}ProductItem`)
+    .then(resp => resp)
+    .catch(e => {
+      console.warn('ERRROR>>', e);
+    });

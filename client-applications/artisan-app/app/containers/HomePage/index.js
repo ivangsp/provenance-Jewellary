@@ -11,9 +11,24 @@
 
 import React from 'react';
 import ProductForm from './ProductForm';
+import { fetchAlProducts } from './actions';
+import { ProductListItem } from './ProductList';
 
-/* eslint-disable react/prefer-stateless-function */
-export default class HomePage extends React.PureComponent {
+export default class HomePage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      products: [],
+    };
+  }
+
+  async componentDidMount() {
+    const products = await fetchAlProducts();
+    this.setState({
+      products: products.data,
+    });
+  }
+
   render() {
     return (
       <div className="container">
@@ -25,6 +40,9 @@ export default class HomePage extends React.PureComponent {
         </div>
         <div className="row">
           <ProductForm />
+        </div>
+        <div className="row">
+          <ProductListItem products={this.state.products} />
         </div>
       </div>
     );
