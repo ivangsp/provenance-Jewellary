@@ -92,3 +92,9 @@ network/config
 
 network/devmode/crypto-config
 network/devmode/config
+
+# ignore cards 
+tmp
+
+# ignore 
+network/channel-artifacts
