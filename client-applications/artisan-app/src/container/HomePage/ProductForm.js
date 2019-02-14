@@ -49,17 +49,18 @@ export default class ProductForm extends React.Component {
   render() {
     return (
       <div className="row">
-        <div className="col-6">
+        <div className="col-12">
           <div className="form-group">
-            <label htmlFor="name">Product name:</label>
+            <label htmlFor="name">Design Name:</label>
             <input
               type="text"
-              name="name"
+              name="design"
               className="form-control"
-              placeholder="Enter product name"
+              placeholder="Enter the design name"
               onChange={this.handleChange}
             />
           </div>
+        
 
           <div className="form-group">
             <label htmlFor="image">Upload Product Image</label>
