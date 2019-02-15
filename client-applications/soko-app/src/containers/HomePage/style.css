@@ -1,0 +1,23 @@
+.searched-result-container{
+    display: grid;
+    grid-template-columns: 300px 100px auto;
+
+}
+.left {
+    max-height: 300px;
+    border: 1px solid gray;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    padding-left: 40px;
+}
+
+.center span:nth-child(even){
+    min-height: 300px;
+    width: 1px;
+    background-color: black;
+    margin-left: 10px;
+}
