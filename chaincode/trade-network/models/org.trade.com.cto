@@ -76,13 +76,14 @@ concept InvoiceLineItem {
   o Double subTotal
 }
 
-concept productAssembly {
+concept ProductInfo {
  o String serial_number
  o String image
  o ProductDesign design
  o User owner
  o String location
- o DateTime dateCreated 
+ o DateTime dateCreated
+ o QualityCertificate qualityCertificate optional
 }
 
 concept PurchaseOrderInfo {
@@ -128,7 +129,7 @@ asset Product identified by serial_number {
   --> User owner
   o String location
   o DateTime dateCreated
-  o QualityCertificate qualityCertificate default=""
+  o QualityCertificate qualityCertificate optional
 }
  
 asset ProductDesign identified by id {
@@ -174,12 +175,27 @@ event CreatePurchaseOrderEvent {
 
 transaction CreateProductDesign {
 	o String name
-    o BillOfMaterial [] material
-  	o Specification specification  
-    --> User [] designers
+  o BillOfMaterial [] material
+  o Specification specification  
+  o String [] designers
 }
-event CreateProductDesignEvent {
-  o ProductDesignInfo design
+
+transaction GetDesignByDesignerId {
+  o String designerId
+}
+
+event DesignInfo {
+  o ProductDesignInfo [] designs
+}
+
+transaction AddQualityCertificate {
+  o String productId
+  o QualityStatus status
+  o String userId
+}
+
+event ProductEvent {
+  o Product product
 }
 
 transaction CreateInvoice {
@@ -206,7 +222,7 @@ transaction acceptRejectPurchaseOrder {
 }
 
 event acceptRejectPurchaseOrderEvent {
-    o PurchaseOrder po
+  o PurchaseOrder po
 }
 
 transaction UpdatePurchaseOrder {

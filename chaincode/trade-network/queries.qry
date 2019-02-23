@@ -1,16 +1,39 @@
-/** Sample queries for trade network
-*/
-
+query getUserById {
+  description: "search user with a particular id"
+  statement:
+    SELECT org.trade.com.User
+    WHERE (id == _$id)
+}
+query searchProductDesignByDesignerId {
+  description: "Search design by designer id"
+  statement:
+    SELECT org.trade.com.ProductDesign
+    WHERE (designers CONTAINS _$id)
+}
 query searchProductByArtisanName {
+  description: "Search product by artisan name"
+  statement:
+    SELECT org.trade.com.Product
+    WHERE (owner.userName == _$name)
+}
+
+query findAvailableProducts {
   description: "Seacrch prodct by artisan name"
   statement:
-    SELECT org.trade.com.ProductItem
-    WHERE (owner.username == _$name)
+    SELECT org.trade.com.Product
+    WHERE (design.name == _$name)
 }
 
 query searchProductBySerialNumber {
   description: "search product by serial number"
   statement: 
-    SELECT org.trade.com.ProductItem
+    SELECT org.trade.com.Product
     WHERE (serial_number == _$productId)
+}
+
+query findSoldProductItem {
+  description: "Search sold product item"
+  statement:
+    SELECT org.trade.com.Invoice
+    WHERE (products CONTAINS _$product)
 }
