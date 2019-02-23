@@ -13,17 +13,25 @@ export default function () {
                 <span>
                     <img src={diamond} alt="" width="20px" height="30px" />
                 </span>
-                <span class="line">
+                <span className="line">
                     
                 </span>
                 <span>
                     <img src={diamond} alt="" width="20px" height="30px" />
                 </span>
-                <span class="line">
-                    
-                </span>
+                <span className="line"></span>
             </div>
-            <div className="right"></div>
+            <div className="right">
+                <div className="content">
+                    <div className="cont-header">
+                        <span>Designer(s)</span>
+                        <span className="">Details(s)</span>
+                    </div>
+                    <div className="main-content">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor bru
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

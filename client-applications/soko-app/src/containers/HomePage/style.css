@@ -21,3 +21,19 @@
     background-color: black;
     margin-left: 10px;
 }
+.right {
+    display: flex;
+    flex-direction: column;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+}
+.cont-header {
+    display: flex;
+    flex-direction: row;
+}
+.cont-header span {
+    margin-right: 25px;
+    cursor: pointer;
+}

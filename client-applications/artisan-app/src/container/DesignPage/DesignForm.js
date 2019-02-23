@@ -160,7 +160,7 @@ export default class DesignForm extends React.Component {
             </div>
         </div>
         
-        <div className="col-12">    
+        <div className="col-12 mt-2">    
             <button type="button" className="btn btn-primary" onClick={this.submitForm}>Submit</button>
         </div>
       </div>
