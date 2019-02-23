@@ -53,3 +53,47 @@ async function createProductDesign(designRequest) {
     // const deisgnInfo = factory.newEvent(namespace, 'CreateProductDesignEvent');
     // emit(deisgnInfo);
 }
+
+/**
+ * @param {org.trade.com.GetDesignByDesignerId} designReq - the getDesignByDesignerId transaction
+ * @transaction
+ */
+async function getDesignByDesignerId(designReq) {
+    const factory = getFactory();
+    try {
+        const user = await query('getUserById', {id: designReq.designerId});
+        if (user.length === 0) {
+        // eslint-disable-next-line no-throw-literal
+            throw 'Designer with the id ' + designerId + 'does not exist';
+        }
+  	const designerId = 'resource:'+ user[0].getFullyQualifiedIdentifier();
+        const designs = await query('searchProductDesignByDesignerId', {id: designerId});
+
+        if (designs.length === 0){
+        // eslint-disable-next-line no-throw-literal
+            throw 'Not found ' + designerId;
+        }
+
+        const designLineItems = [];
+        designs.forEach(design => {
+            const designItem = factory.newConcept(namespace, 'ProductDesignInfo');
+            designItem.id = design.id;
+            designItem.name = design.name;
+            designItem.material = design.material;
+            designItem.specification = design.specification;
+      	designItem.dateCreated = design.dateCreated;
+            designItem.designers = user;
+
+            designLineItems.push(designItem);
+        });
+
+        // emit event
+        const deisgnInfo = factory.newEvent(namespace, 'DesignInfo');
+        deisgnInfo.designs = designLineItems;
+        emit(deisgnInfo);
+    }
+    catch (e) {
+        console.error('Opps, SQL error', e);
+    }
+
+}
