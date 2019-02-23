@@ -35,25 +35,32 @@ rule NetworkAdminSystem {
     action: ALLOW
 }
 
-rule OwnerHasFullAccessToTheirProducts {
+rule OwnerFullAccessToTheirProducts {
     description: "Allow all participants full access to their assets"
-    participant(p): "org.trade.com.Trader"
+    participant(p): "org.trade.com.User"
     operation: ALL
-    resource(r): "org.trade.com.ProductItem"
+    resource(r): "org.trade.com.Product"
     condition: (r.owner.getIdentifier() === p.getIdentifier())
     action: ALLOW
 }
 rule EveryOneCanSeeProducts {
     description: "Allow all participants full access to their assets"
-    participant: "org.trade.com.Trader"
+    participant: "org.trade.com.User"
     operation: READ
-    resource: "org.trade.com.ProductItem"
+    resource: "org.trade.com.Product"
     action: ALLOW
 }
 
+rule EveryoneCanSeeAssets {
+    description: "Allow all participants full access to their assets"
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.*"
+    action: ALLOW
+}
 rule AnyOneCanCreatePurchaseOrder {
   description: "Both buyer and seller have full access rights"
-  participant: "org.trade.com.Trader"
+  participant: "org.trade.com.User"
   operation: CREATE
   resource: "org.trade.com.PurchaseOrder"
   transaction: "org.trade.com.CreatePurchaseOrder"
@@ -61,19 +68,76 @@ rule AnyOneCanCreatePurchaseOrder {
 }
 rule EveryOneCanCreatePo {
   description: "Everyone can create a purchase order"
-  participant: "org.trade.com.Trader"
+  participant: "org.trade.com.User"
   operation: CREATE
   resource: "org.trade.com.CreatePurchaseOrder"
   action: ALLOW
 }
+
 rule OnlyBuyerAndSellerHaveFullAccessToPo {
-  description: "Both buyer and seller have full access rights"
-  participant(p): "org.trade.com.Trader"
+  description: "Both buyer and seller have full access rights to the PO"
+  participant(p): "org.trade.com.User"
   operation: UPDATE, READ
   resource(r): "org.trade.com.PurchaseOrder"
-  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier()
+             || r.buyer.company.name === p.company.name )
   action: ALLOW
 }
 
+rule OnlyBuyerAndSellersCanUpdatePO {
+  description: "Both buyer and seller have full access rights"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.UpdatePurchaseOrder"
+  action: ALLOW
+}
 
+rule OnlyDesignersCancreateDesign {
+  description: "only designers can create design"
+  participant(p): "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.ProductDesign"
+  condition: (p.role === "DESIGNER")
+  action: ALLOW
+}
 
+rule DesignersCanOnlyEditTheirOwnDesign {
+  description: "designers can edit their own design"
+  participant(p): "org.trade.com.User"
+  operation: UPDATE
+  resource(r): "org.trade.com.ProductDesign"
+  condition: (p.role === "DESIGNER" && (r.designers.includes(p)))
+  action: ALLOW
+}
+
+rule OnlyArtisanCanCreateProduct {
+  description: "only artisan can create product"
+  participant(p): "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.Product"
+  condition: (p.role === "ARTISAN")
+  action: ALLOW
+}
+rule OnlyArtisanAndQualitynalystCanUpdateProduct {
+  description: "only artisan can create product"
+  participant(p): "org.trade.com.User"
+  operation: UPDATE
+  resource(r): "org.trade.com.Product"
+  condition: ((p.role === "ARTISAN" && r.owner.getIdentifier() === p.getIdentifier()) || (p.role === "QUALITYANALYST"))
+  action: ALLOW
+}
+rule EveryoneCanSearchProductDesignByArtisanId {
+  description: "you can search for design by designers id"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.GetDesignByDesignerId"
+  action: ALLOW
+}
+rule OnlyQualityAnalystCanAddCertiificate {
+  description: "analyst are allowed to add certificate"
+  participant (p): "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.AddQualityCertificate"
+  condition: (p.role = "QUALITYANALYST")
+  action: ALLOW
+}
