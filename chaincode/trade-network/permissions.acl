@@ -63,14 +63,6 @@ rule AnyOneCanCreatePurchaseOrder {
   participant: "org.trade.com.User"
   operation: CREATE
   resource: "org.trade.com.PurchaseOrder"
-  transaction: "org.trade.com.CreatePurchaseOrder"
-  action: ALLOW
-}
-rule EveryOneCanCreatePo {
-  description: "Everyone can create a purchase order"
-  participant: "org.trade.com.User"
-  operation: CREATE
-  resource: "org.trade.com.CreatePurchaseOrder"
   action: ALLOW
 }
 
@@ -79,16 +71,7 @@ rule OnlyBuyerAndSellerHaveFullAccessToPo {
   participant(p): "org.trade.com.User"
   operation: UPDATE, READ
   resource(r): "org.trade.com.PurchaseOrder"
-  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier()
-             || r.buyer.company.name === p.company.name )
-  action: ALLOW
-}
-
-rule OnlyBuyerAndSellersCanUpdatePO {
-  description: "Both buyer and seller have full access rights"
-  participant: "org.trade.com.User"
-  operation: CREATE
-  resource: "org.trade.com.UpdatePurchaseOrder"
+  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
   action: ALLOW
 }
 
@@ -139,5 +122,23 @@ rule OnlyQualityAnalystCanAddCertiificate {
   operation: CREATE
   resource: "org.trade.com.AddQualityCertificate"
   condition: (p.role = "QUALITYANALYST")
+  action: ALLOW
+}
+
+rule AllowBuyersAndSellersToReviewPurchaseOrder {
+  description: "buyers and sellers should have permission to edit the purchaseorder"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.ReviewPurchaseOrder"
+  action: ALLOW
+}
+
+rule OnlyBuyerAndSellerCanChangePurchaseOrder {
+  description: "buyers and sellers should have permission to edit the purchaseorder"
+  participant(p): "org.trade.com.User"
+  operation: CREATE
+  resource (r): "org.trade.com.PurchaseOrder"
+  transaction: "org.trade.com.ReviewPurchaseOrder"
+  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
   action: ALLOW
 }

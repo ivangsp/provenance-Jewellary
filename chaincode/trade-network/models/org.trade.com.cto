@@ -71,7 +71,8 @@ concept PurchaseOrderLineItem {
 }
 
 concept InvoiceLineItem {
-  o Product product
+  o String serial_number
+  o String name
   o Integer amount
   o Double subTotal
 }
@@ -117,7 +118,7 @@ asset PurchaseOrder identified by id {
   o POStatus status
   o PurchaseOrderLineItem [] products
   o Double totalAMount
-  o String description
+  o String description optional
   --> User seller
   --> User buyer
 }
@@ -198,6 +199,23 @@ event ProductEvent {
   o Product product
 }
 
+transaction ReviewPurchaseOrder {
+  o String purchaseOrderId
+  o POStatus status
+  o String description optional
+}
+event PurchaseOrderInfoEvent {
+  o PurchaseOrder purchaseOrder
+}
+
+transaction GenerateInvoice {
+  o String purchaseOrderId
+}
+
+event GenerateInvoiceEvent {
+  o Invoice invoice
+}
+
 transaction CreateInvoice {
   o InvoiceLineItem [] invoiceLineItem
   o Double totalAmount
@@ -215,17 +233,4 @@ transaction FindAvailableProducts {
 
 event AvailableProductsEvent {
   o Product [] products
-}
-transaction acceptRejectPurchaseOrder {
-    o PurchaseOrder po
-	o POStatus status
-}
-
-event acceptRejectPurchaseOrderEvent {
-  o PurchaseOrder po
-}
-
-transaction UpdatePurchaseOrder {
-  o String poId
-  o POStatus status
 }
