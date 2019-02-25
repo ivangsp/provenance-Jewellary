@@ -64,15 +64,13 @@ concept QualityCertificate {
 }
 
 concept PurchaseOrderLineItem {
-  o String design
+  o String name
   o Integer amount
-  o Double price
-  o Double subTotal
 }
 
 concept InvoiceLineItem {
-  o String serial_number
   o String name
+  o Double price
   o Integer amount
   o Double subTotal
 }
@@ -126,6 +124,8 @@ asset PurchaseOrder identified by id {
 asset Product identified by serial_number {
   o String serial_number
   o String image
+  o String name
+  o Double price
   --> ProductDesign design
   --> User owner
   o String location
@@ -146,7 +146,7 @@ asset Invoice identified by id {
   o String id
   o InvoiceLineItem [] invoiceLineItem
   o Double totalAmount
-  o InvoiceStatus Status
+  o InvoiceStatus status
   --> User seller
   --> User buyer
 }
@@ -214,17 +214,6 @@ transaction GenerateInvoice {
 
 event GenerateInvoiceEvent {
   o Invoice invoice
-}
-
-transaction CreateInvoice {
-  o InvoiceLineItem [] invoiceLineItem
-  o Double totalAmount
-  --> User seller
-  --> User buyer
-}
-
-event CreateInvoiceEvent {
-  o InvoiceInfo invoices
 }
 
 transaction FindAvailableProducts {

@@ -1,3 +1,9 @@
+query findProductByName {
+  description: "search product by serial number"
+  statement: 
+    SELECT org.trade.com.Product
+    WHERE (name == _$name)
+}
 query getUserById {
   description: "search user with a particular id"
   statement:

@@ -35,14 +35,21 @@ rule NetworkAdminSystem {
     action: ALLOW
 }
 
-rule OwnerFullAccessToTheirProducts {
+rule EveryoneCanSeeProductDesign {
     description: "Allow all participants full access to their assets"
-    participant(p): "org.trade.com.User"
-    operation: ALL
-    resource(r): "org.trade.com.Product"
-    condition: (r.owner.getIdentifier() === p.getIdentifier())
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.ProductDesign"
     action: ALLOW
 }
+rule EveryParticipatCanSeeEachOther {
+    description: "Allow all participants to see each other"
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.User"
+    action: ALLOW
+}
+
 rule EveryOneCanSeeProducts {
     description: "Allow all participants full access to their assets"
     participant: "org.trade.com.User"
@@ -50,14 +57,32 @@ rule EveryOneCanSeeProducts {
     resource: "org.trade.com.Product"
     action: ALLOW
 }
-
-rule EveryoneCanSeeAssets {
-    description: "Allow all participants full access to their assets"
-    participant: "org.trade.com.User"
-    operation: READ
-    resource: "org.trade.com.*"
+rule OnlyBuyersAndSellersHaveAccessToPurchaseOrder {
+    description: "Only buyers and sellers have full access to their po"
+    participant(p): "org.trade.com.User"
+    operation: ALL
+    resource(r): "org.trade.com.PurchaseOrder"
+    condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
     action: ALLOW
 }
+rule OnlyBuyerAndSellerHaveAccessToInvoices {
+    description: "only buyers and sellers have access to the invoices"
+    participant: "org.trade.com.User"
+    operation: ALL
+    resource: "org.trade.com.Invoice"
+    condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+    action: ALLOW
+}
+
+rule OwnerFullAccessToTheirProducts {
+    description: "Allow all participants full access to their assets"
+    participant(p): "org.trade.com.User"
+    operation: CREATE, UPDATE
+    resource(r): "org.trade.com.Product"
+    condition: (r.owner.getIdentifier() === p.getIdentifier())
+    action: ALLOW
+}
+
 rule AnyOneCanCreatePurchaseOrder {
   description: "Both buyer and seller have full access rights"
   participant: "org.trade.com.User"
@@ -101,6 +126,7 @@ rule OnlyArtisanCanCreateProduct {
   condition: (p.role === "ARTISAN")
   action: ALLOW
 }
+
 rule OnlyArtisanAndQualitynalystCanUpdateProduct {
   description: "only artisan can create product"
   participant(p): "org.trade.com.User"
@@ -142,3 +168,31 @@ rule OnlyBuyerAndSellerCanChangePurchaseOrder {
   condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
   action: ALLOW
 }
+
+rule EveryOneCanGenrateInvoice {
+  description: "Allow Everyone to generate invoice"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.GenerateInvoice"
+  action: ALLOW
+}
+
+rule EveryOneCanCreateInvoice {
+  description: "Allow Everyone to create invoice"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.Invoice"
+  transaction: "org.trade.com.GenerateInvoice"
+  action: ALLOW
+}
+
+rule OnlyBuyerAndSellerCanSeeTheirInvoice {
+  description: "only buyer and sellers can view there invoices"
+  participant(p): "org.trade.com.User"
+  operation: READ, UPDATE
+  resource (r): "org.trade.com.Invoice"
+  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+  action: ALLOW
+}
+
+
