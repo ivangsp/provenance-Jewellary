@@ -35,23 +35,25 @@ async function generateInvoice (request){
     const invoiceLineItems = [];
     for (const item in poLineItems) {
         const availableProducts = await query('findProductByName', {name: poLineItems[item].name});
-
         if(poLineItems[item].amount > availableProducts.length){
             // eslint-disable-next-line no-throw-literal
             throw 'There is no enough ' + poLineItems[item].name + 'to full fill the order';
         }
         const products = availableProducts.slice(0, poLineItems[item].amount);
+        products.forEach(product =>{
 
-        const invoiceLineItem = factory.newConcept(namespace, 'InvoiceLineItem');
-        invoiceLineItem.name = products[0].name;
-        invoiceLineItem.amount = poLineItems[item].amount;
-        invoiceLineItem.price =  products[0].price;
-        invoiceLineItem.subTotal = products[0].price * poLineItems[item].amount;
+            const invoiceLineItem = factory.newConcept(namespace, 'InvoiceLineItem');
+            invoiceLineItem.serial_number =  product.serial_number;
+            invoiceLineItem.name = product.name;
+            invoiceLineItem.price =  product.price;
 
-        invoiceLineItems.push(invoiceLineItem);
+            invoiceLineItems.push(invoiceLineItem);
+        });
+
+
     }
 
-    const totalAmount = invoiceLineItems.reduce((sum, item) => sum + item.subTotal, 0.0);
+    const totalAmount = invoiceLineItems.reduce((sum, item) => sum + item.price, 0.0);
 
     const invoiceId = '#' + new Date().getTime().toString();
     const invoice = factory.newResource(namespace, 'Invoice', invoiceId);

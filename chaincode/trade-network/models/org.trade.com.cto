@@ -69,10 +69,10 @@ concept PurchaseOrderLineItem {
 }
 
 concept InvoiceLineItem {
+  o String serial_number
   o String name
   o Double price
-  o Integer amount
-  o Double subTotal
+  
 }
 
 concept ProductInfo {
