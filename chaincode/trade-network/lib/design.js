@@ -17,7 +17,6 @@
 'use strict';
 
 /* global getFactory getAssetRegistry getParticipantRegistry emit query */
-const namespace = 'org.trade.com';
 
 
 /**
@@ -26,6 +25,8 @@ const namespace = 'org.trade.com';
  * @transaction
  */
 async function createProductDesign(designRequest) {
+    const namespace = 'org.trade.com';
+
     const factory = getFactory();
 
     const id = 'D#' + new Date().getTime().toString();
@@ -59,6 +60,7 @@ async function createProductDesign(designRequest) {
  * @transaction
  */
 async function getDesignByDesignerId(designReq) {
+    const namespace = 'org.trade.com';
     const factory = getFactory();
     try {
         const user = await query('getUserById', {id: designReq.designerId});

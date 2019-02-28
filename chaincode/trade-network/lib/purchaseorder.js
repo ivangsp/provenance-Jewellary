@@ -17,7 +17,6 @@
 'use strict';
 
 /* global getFactory getAssetRegistry getParticipantRegistry emit query */
-const namespace = 'org.trade.com';
 
 /**
  *
@@ -25,6 +24,8 @@ const namespace = 'org.trade.com';
  * @transaction
  */
 async function createPurchaseOrder(poRequest) {
+    const namespace = 'org.trade.com';
+
     const factory = getFactory();
 
     const po = factory.newResource(namespace, 'PurchaseOrder', poRequest.id);
@@ -52,6 +53,8 @@ async function createPurchaseOrder(poRequest) {
  * @transaction
  */
 async function reviewPurchaseOrder(request) {
+    const namespace = 'org.trade.com';
+
     const factory = getFactory();
 
     const assetRegistry = await getAssetRegistry('org.trade.com.PurchaseOrder');
@@ -68,5 +71,3 @@ async function reviewPurchaseOrder(request) {
     poEvent.purchaseOrder = po;
     emit(poEvent);
 }
-
-

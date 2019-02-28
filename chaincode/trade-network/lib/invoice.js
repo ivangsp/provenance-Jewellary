@@ -17,7 +17,6 @@
 'use strict';
 
 /* global getFactory getAssetRegistry getParticipantRegistry emit query */
-const namespace = 'org.trade.com';
 
 /**
  *
@@ -25,6 +24,8 @@ const namespace = 'org.trade.com';
  * @transaction
  */
 async function generateInvoice (request){
+    const namespace = 'org.trade.com';
+
     const factory = getFactory();
 
     const assetRegistry = await getAssetRegistry('org.trade.com.PurchaseOrder');
