@@ -31,6 +31,11 @@ enum InvoiceStatus {
   o PAID
   o CANCELLED  
 }
+enum ChequeStatus {
+  o UNPAID
+  o PAID
+  o BOUNCED
+}
 enum QualityStatus {
   o PASSED
   o FAILED
@@ -151,6 +156,18 @@ asset Invoice identified by id {
   --> User buyer
 }
 
+asset Cheque identified by id {
+ o String id
+ o String benficiary
+ --> Bank bank
+ o String from
+ o String accountNumber
+ o Double amount
+ --> Invoice invoice
+ o ChequeStatus status
+  
+}
+
 // PARTICIPANTS
 participant User identified by id {
   o String id
@@ -158,7 +175,12 @@ participant User identified by id {
   o String email
   o String accountNumber
   o Role role
-  o Company company
+  o Company company optional
+}
+participant Bank identified by name {
+  o String name
+  o String branch
+  o String location
 }
 
 // TRANSACTIONS
@@ -175,7 +197,7 @@ event CreatePurchaseOrderEvent {
 }
 
 transaction CreateProductDesign {
-	o String name
+  o String name
   o BillOfMaterial [] material
   o Specification specification  
   o String [] designers
@@ -216,6 +238,21 @@ event GenerateInvoiceEvent {
   o Invoice invoice
 }
 
+transaction IssueCheque {
+  --> Invoice invoice
+  --> Bank  bank
+}
+
+event ChequeEvent {
+ o Cheque cheque
+ 
+}
+
+transaction MakePayment {
+  --> Cheque cheque
+}
+
+   
 transaction FindAvailableProducts {
   o String name
 }

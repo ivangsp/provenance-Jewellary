@@ -41,6 +41,14 @@ rule EveryParticipatCanSeeEachOther {
     resource: "org.trade.com.User"
     action: ALLOW
 }
+rule EveryOneCanSeeBank {
+    description: "Allow all participants to see bank"
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.Bank"
+    action: ALLOW
+}
+
 
 rule EveryoneCanSeeProductDesign {
     description: "Allow all participants full access to their assets"
@@ -203,5 +211,59 @@ rule OnlyBuyerAndSellerCanSeeTheirInvoice {
   condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
   action: ALLOW
 }
+rule EveryOneCanIssueACheque {
+  description: "Anyone can issue a cheque"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.IssueCheque"
+  action: ALLOW
+}
+rule EveryOneCanCreateCheque {
+  description: "Anyone can create a cheque"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.Cheque"
+  transaction: "org.trade.com.IssueCheque"
+  action: ALLOW
+}
+rule OnlyBuyerAndSellerCanSeeTheirCheques {
+  description: "buyers and sellers can see their respective cheques"
+  participant(p): "org.trade.com.User"
+  operation: READ
+  resource(r): "org.trade.com.Cheque"
+  condition: (p.getIdentifier() == r.invoice.seller.getIdentifier() || p.getIdentifier() == r.invoice.buyer.getIdentifier() )
+  action: ALLOW
+}
 
+rule BankCanViewUpdateCheque {
+  description: "bank can read and update cheque"
+  participant(p): "org.trade.com.Bank"
+  operation: READ, UPDATE
+  resource(r): "org.trade.com.Cheque"
+  condition: (p.getIdentifier() == r.bank.getIdentifier() )
+  action: ALLOW
+}
+rule BankCanTransferPayment {
+  description: "bank can transfer payment"
+  participant: "org.trade.com.Bank"
+  operation: CREATE
+  resource: "org.trade.com.MakePayment"
+  action: ALLOW
+}
+
+rule BankCanTranferOwnership {
+  description: "bank can read and update cheque"
+  participant: "org.trade.com.Bank"
+  operation: UPDATE, READ
+  resource: "org.trade.com.Product"
+  action: ALLOW
+}
+
+rule BankHasAccessToAnInvoice {
+  description: "bank can read invoice"
+  participant: "org.trade.com.Bank"
+  operation: UPDATE, READ
+  resource: "org.trade.com.Invoice"
+  action: ALLOW
+}
 
