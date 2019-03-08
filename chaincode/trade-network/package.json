@@ -3,7 +3,7 @@
     "composer": "^0.20.5"
   },
   "name": "trade-network",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "description": "provenance solution handcrafted products using blockchain",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/trade-network.bna",

@@ -94,6 +94,4 @@ async function makePayment (request) {
     event.cheque = cheque;
     emit(event);
 
-
-
 }
