@@ -22,6 +22,7 @@ services:
   exporter-ca:
     image: hyperledger/fabric-ca
     environment:
+      - GODEBUG=netdns=go 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-exporterorg
       - FABRIC_CA_SERVER_TLS_ENABLED=true
@@ -39,6 +40,7 @@ services:
   importer-ca:
     image: hyperledger/fabric-ca
     environment:
+      - GODEBUG=netdns=go 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-importerorg
       - FABRIC_CA_SERVER_TLS_ENABLED=true
@@ -56,6 +58,7 @@ services:
   carrier-ca:
     image: hyperledger/fabric-ca
     environment:
+      - GODEBUG=netdns=go 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-carrierorg
       - FABRIC_CA_SERVER_TLS_ENABLED=true
@@ -73,6 +76,7 @@ services:
   regulator-ca:
     image: hyperledger/fabric-ca
     environment:
+      - GODEBUG=netdns=go 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-regulatororg
       - FABRIC_CA_SERVER_TLS_ENABLED=true
@@ -90,6 +94,7 @@ services:
   bank-ca:
     image: hyperledger/fabric-ca
     environment:
+      - GODEBUG=netdns=go 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-bankorg
       - FABRIC_CA_SERVER_TLS_ENABLED=true
