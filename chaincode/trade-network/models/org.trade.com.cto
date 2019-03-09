@@ -108,14 +108,7 @@ concept ProductDesignInfo {
   o BillOfMaterial [] material
   o Specification specification
 }
-concept InvoiceInfo {
-  o String id
-  o InvoiceLineItem [] invoiceLineItem
-  o Double totalAmount
-  o InvoiceStatus Status
-  o User seller
-  o User buyer
-}
+
 asset PurchaseOrder identified by id {
   o String id
   o POStatus status

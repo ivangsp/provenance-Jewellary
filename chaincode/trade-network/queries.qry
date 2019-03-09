@@ -36,10 +36,3 @@ query searchProductBySerialNumber {
     SELECT org.trade.com.Product
     WHERE (serial_number == _$productId)
 }
-
-query findSoldProductItem {
-  description: "Search sold product item"
-  statement:
-    SELECT org.trade.com.Invoice
-    WHERE (products CONTAINS _$product)
-}
