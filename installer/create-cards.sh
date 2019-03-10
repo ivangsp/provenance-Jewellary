@@ -3,33 +3,38 @@ set -e
 
 ## delete the old cards
 # composer card delete -c <cardName>
+cd ..
+# remove old composer fold if it exists
+if [ -d "composer" ]; then
+    rm -rf composer
+fi
 
-cd tmp/composer
+mkdir composer
 
-# delete old configuration
+cd composer
+
+# delete old cards 
 rm -fr $HOME/.composer
-find * ! -name 'byfn-network-example.json' ! -name 'endorsement-policy.json' ! -name 'readme.md' ! -name '*.bna' -type f -exec rm -f {} +
-find *  -type d -exec rm -r {} +
 
 
 # create new directories
 mkdir bank regulator importer exporter carrier
 
 # copy the example for the network configuration to byfn-network.json
-cat byfn-network-example.json >>byfn-network.json
+cat ../network/config/byfn-network-example.json >>byfn-network.json
 
 ## copy the cryptographic materials into the network configuration file byfn-network.json
-export EXPORTER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../../network/crypto-config/peerOrganizations/exporterorg.trade.com/peers/peer0.exporterorg.trade.com/tls/ca.crt)
+export EXPORTER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../network/crypto-config/peerOrganizations/exporterorg.trade.com/peers/peer0.exporterorg.trade.com/tls/ca.crt)
 perl -p -i -e 's@INSERT_EXPORTER_CA_CERT@$ENV{EXPORTER_CA_CERT}@g' byfn-network.json
-export IMPORTER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../../network/crypto-config/peerOrganizations/importerorg.trade.com/peers/peer0.importerorg.trade.com/tls/ca.crt)
+export IMPORTER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../network/crypto-config/peerOrganizations/importerorg.trade.com/peers/peer0.importerorg.trade.com/tls/ca.crt)
 perl -p -i -e 's@INSERT_IMPORTER_CA_CERT@$ENV{IMPORTER_CA_CERT}@g' byfn-network.json
-export REGULATOR_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../../network/crypto-config/peerOrganizations/regulatororg.trade.com/peers/peer0.regulatororg.trade.com/tls/ca.crt)
+export REGULATOR_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../network/crypto-config/peerOrganizations/regulatororg.trade.com/peers/peer0.regulatororg.trade.com/tls/ca.crt)
 perl -p -i -e 's@INSERT_REGULATOR_CA_CERT@$ENV{REGULATOR_CA_CERT}@g' byfn-network.json
-export BANK_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../../network/crypto-config/peerOrganizations/bankorg.trade.com/peers/peer0.bankorg.trade.com/tls/ca.crt)
+export BANK_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../network/crypto-config/peerOrganizations/bankorg.trade.com/peers/peer0.bankorg.trade.com/tls/ca.crt)
 perl -p -i -e 's@INSERT_BANK_CA_CERT@$ENV{BANK_CA_CERT}@g' byfn-network.json
-export CARRIER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../../network/crypto-config/peerOrganizations/carrierorg.trade.com/peers/peer0.carrierorg.trade.com/tls/ca.crt)
+export CARRIER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../network/crypto-config/peerOrganizations/carrierorg.trade.com/peers/peer0.carrierorg.trade.com/tls/ca.crt)
 perl -p -i -e 's@INSERT_CARRIER_CA_CERT@$ENV{CARRIER_CA_CERT}@g' byfn-network.json
-export ORDER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../../network/crypto-config/ordererOrganizations/trade.com/orderers/orderer.trade.com/tls/ca.crt)
+export ORDER_CA_CERT=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ../network/crypto-config/ordererOrganizations/trade.com/orderers/orderer.trade.com/tls/ca.crt)
 perl -p -i -e 's@INSERT_ORDER_CA_CERT@$ENV{ORDER_CA_CERT}@g' byfn-network.json
 
 # loop through all directories
@@ -40,7 +45,7 @@ for d in * ; do
         sed -i 's/ORGANISATION_NAME/importerorg/g' importer/byfn-network-importer.json
         
         # copy the user certificates into the respective organisation folder
-        export Importer=../../network/crypto-config/peerOrganizations/importerorg.trade.com/users/Admin@importerorg.trade.com/msp
+        export Importer=../network/crypto-config/peerOrganizations/importerorg.trade.com/users/Admin@importerorg.trade.com/msp
         cp -p $Importer/signcerts/A*.pem importer
         cp -p $Importer/keystore/*_sk importer
     fi
@@ -49,7 +54,7 @@ for d in * ; do
         sed -i 's/ORGANISATION_NAME/exporterorg/g' exporter/byfn-network-exporter.json
 
         # copy the user certificates into the respective organisation folder
-        export Exporter=../../network/crypto-config/peerOrganizations/exporterorg.trade.com/users/Admin@exporterorg.trade.com/msp
+        export Exporter=../network/crypto-config/peerOrganizations/exporterorg.trade.com/users/Admin@exporterorg.trade.com/msp
         cp -p $Exporter/signcerts/A*.pem exporter
         cp -p $Exporter/keystore/*_sk exporter
     fi
@@ -58,7 +63,7 @@ for d in * ; do
         sed -i 's/ORGANISATION_NAME/regulatororg/g' regulator/byfn-network-regulator.json
 
         # copy the user certificates into the respective organisation folder
-        export Regulator=../../network/crypto-config/peerOrganizations/regulatororg.trade.com/users/Admin@regulatororg.trade.com/msp
+        export Regulator=../network/crypto-config/peerOrganizations/regulatororg.trade.com/users/Admin@regulatororg.trade.com/msp
         cp -p $Regulator/signcerts/A*.pem regulator
         cp -p $Regulator/keystore/*_sk regulator
     fi
@@ -67,7 +72,7 @@ for d in * ; do
         sed -i 's/ORGANISATION_NAME/carrierorg/g' carrier/byfn-network-carrier.json
 
         # copy the user certificates into the respective organisation folder
-        export Carrier=../../network/crypto-config/peerOrganizations/carrierorg.trade.com/users/Admin@carrierorg.trade.com/msp
+        export Carrier=../network/crypto-config/peerOrganizations/carrierorg.trade.com/users/Admin@carrierorg.trade.com/msp
         cp -p $Carrier/signcerts/A*.pem carrier
         cp -p $Carrier/keystore/*_sk carrier
     fi
@@ -76,7 +81,7 @@ for d in * ; do
         sed -i 's/ORGANISATION_NAME/bankorg/g' bank/byfn-network-bank.json
 
         # copy the user certificates into the respective organisation folder
-        export Bank=../../network/crypto-config/peerOrganizations/bankorg.trade.com/users/Admin@bankorg.trade.com/msp
+        export Bank=../network/crypto-config/peerOrganizations/bankorg.trade.com/users/Admin@bankorg.trade.com/msp
         cp -p $Bank/signcerts/A*.pem bank
         cp -p $Bank/keystore/*_sk bank
     fi
@@ -107,13 +112,18 @@ composer card import -f PeerAdmin@byfn-network-carrierorg.card --card PeerAdmin@
 
 composer card import -f PeerAdmin@byfn-network-regulatororg.card --card PeerAdmin@byfn-network-regulatororg
 
+echo "==================================Generating the business network archive==============================================="
+cd ../chaincode/trade-network
+composer archive create -t dir -n .
+cd ../../composer
+
 # Installing the business network on the Peer nodes
 echo "================================================= Installing the businness network======================================"
-composer network install --card PeerAdmin@byfn-network-importerorg --archiveFile ../../chaincode/trade-network/*.bna
-composer network install --card PeerAdmin@byfn-network-exporterorg --archiveFile  ../../chaincode/trade-network/*.bna
-composer network install --card PeerAdmin@byfn-network-bankorg --archiveFile  ../../chaincode/trade-network/*.bna
-composer network install --card PeerAdmin@byfn-network-carrierorg --archiveFile  ../../chaincode/trade-network/*.bna
-composer network install --card PeerAdmin@byfn-network-regulatororg --archiveFile  ../../chaincode/trade-network/*.bna
+composer network install --card PeerAdmin@byfn-network-importerorg --archiveFile ../chaincode/trade-network/*.bna
+composer network install --card PeerAdmin@byfn-network-exporterorg --archiveFile  ../chaincode/trade-network/*.bna
+composer network install --card PeerAdmin@byfn-network-bankorg --archiveFile  ../chaincode/trade-network/*.bna
+composer network install --card PeerAdmin@byfn-network-carrierorg --archiveFile  ../chaincode/trade-network/*.bna
+composer network install --card PeerAdmin@byfn-network-regulatororg --archiveFile  ../chaincode/trade-network/*.bna
 
 # creating network admins to interact with the network
 echo "================================================= creating network admins to interact with the network ====================="
@@ -125,7 +135,7 @@ composer identity request -c PeerAdmin@byfn-network-bankorg -u admin -s adminpw 
 
 # starting the Network
 echo "================================================starting the Network, this may take some time===================================="
-composer network start -c PeerAdmin@byfn-network-exporterorg -n trade-network -V 1.0.0 -o endorsementPolicyFile=endorsement-policy.json -A artisanAdmin -C  artisanAdmin/admin-pub.pem -A traderAdmin -C traderAdmin/admin-pub.pem -A regulatorAdmin -C regulatorAdmin/admin-pub.pem -A carrierAdmin -C carrierAdmin/admin-pub.pem -A bankAdmin -C bankAdmin/admin-pub.pem
+composer network start -c PeerAdmin@byfn-network-exporterorg -n trade-network -V 1.0.1 -o endorsementPolicyFile=../network/config/endorsement-policy.json -A artisanAdmin -C  artisanAdmin/admin-pub.pem -A traderAdmin -C traderAdmin/admin-pub.pem -A regulatorAdmin -C regulatorAdmin/admin-pub.pem -A carrierAdmin -C carrierAdmin/admin-pub.pem -A bankAdmin -C bankAdmin/admin-pub.pem
 
 # create cards for the admins inorder  for them to interact with the network
 echo "==============================================creating cards for the admins========================================================"
@@ -147,5 +157,6 @@ composer card import -f regulatorAdmin@trade-network.card
 composer card import -f carrierAdmin@trade-network.card
 #composer card import -f bankAdmin@trade-network.card
 
-echo "====================finished setting up the network, you can run composer card list to see all the available cards========================="
+echo "====================finished setting up the network, These are the available cards========================="
+composer card list
 

@@ -34,46 +34,236 @@ rule NetworkAdminSystem {
     resource: "org.hyperledger.composer.system.**"
     action: ALLOW
 }
-
-rule OwnerHasFullAccessToTheirProducts {
-    description: "Allow all participants full access to their assets"
-    participant(p): "org.trade.com.Trader"
-    operation: ALL
-    resource(r): "org.trade.com.ProductItem"
-    condition: (r.owner.getIdentifier() === p.getIdentifier())
+rule EveryParticipatCanSeeEachOther {
+    description: "Allow all participants to see each other"
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.User"
     action: ALLOW
 }
+rule EveryOneCanSeeBank {
+    description: "Allow all participants to see bank"
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.Bank"
+    action: ALLOW
+}
+
+
+rule EveryoneCanSeeProductDesign {
+    description: "Allow all participants full access to their assets"
+    participant: "org.trade.com.User"
+    operation: READ
+    resource: "org.trade.com.ProductDesign"
+    action: ALLOW
+}
+rule EveryDesignerCanCreateDesign {
+    description: "Allow designers to create designs"
+    participant(p): "org.trade.com.User"
+    operation: CREATE
+    resource: "org.trade.com.ProductDesign"
+    condition: (p.role === "DESIGNER")
+    action: ALLOW
+}
+
+
 rule EveryOneCanSeeProducts {
     description: "Allow all participants full access to their assets"
-    participant: "org.trade.com.Trader"
+    participant: "org.trade.com.User"
     operation: READ
-    resource: "org.trade.com.ProductItem"
+    resource: "org.trade.com.Product"
+    action: ALLOW
+}
+rule OnlyBuyersAndSellersHaveAccessToPurchaseOrder {
+    description: "Only buyers and sellers have full access to their po"
+    participant(p): "org.trade.com.User"
+    operation: ALL
+    resource(r): "org.trade.com.PurchaseOrder"
+    condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+    action: ALLOW
+}
+rule OnlyBuyerAndSellerHaveAccessToInvoices {
+    description: "only buyers and sellers have access to the invoices"
+    participant: "org.trade.com.User"
+    operation: ALL
+    resource: "org.trade.com.Invoice"
+    condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+    action: ALLOW
+}
+
+rule OwnerFullAccessToTheirProducts {
+    description: "Allow all participants full access to their assets"
+    participant(p): "org.trade.com.User"
+    operation: CREATE, UPDATE
+    resource(r): "org.trade.com.Product"
+    condition: (r.owner.getIdentifier() === p.getIdentifier())
     action: ALLOW
 }
 
 rule AnyOneCanCreatePurchaseOrder {
   description: "Both buyer and seller have full access rights"
-  participant: "org.trade.com.Trader"
+  participant: "org.trade.com.User"
   operation: CREATE
   resource: "org.trade.com.PurchaseOrder"
-  transaction: "org.trade.com.CreatePurchaseOrder"
   action: ALLOW
 }
-rule EveryOneCanCreatePo {
-  description: "Everyone can create a purchase order"
-  participant: "org.trade.com.Trader"
-  operation: CREATE
-  resource: "org.trade.com.CreatePurchaseOrder"
-  action: ALLOW
-}
+
 rule OnlyBuyerAndSellerHaveFullAccessToPo {
-  description: "Both buyer and seller have full access rights"
-  participant(p): "org.trade.com.Trader"
+  description: "Both buyer and seller have full access rights to the PO"
+  participant(p): "org.trade.com.User"
   operation: UPDATE, READ
   resource(r): "org.trade.com.PurchaseOrder"
   condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
   action: ALLOW
 }
 
+rule OnlyDesignersCancreateDesign {
+  description: "only designers can create design"
+  participant(p): "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.ProductDesign"
+  condition: (p.role === "DESIGNER")
+  action: ALLOW
+}
 
+rule DesignersCanOnlyEditTheirOwnDesign {
+  description: "designers can edit their own design"
+  participant(p): "org.trade.com.User"
+  operation: UPDATE
+  resource(r): "org.trade.com.ProductDesign"
+  condition: (p.role === "DESIGNER" && (r.designers.includes(p)))
+  action: ALLOW
+}
+
+rule OnlyArtisanCanCreateProduct {
+  description: "only artisan can create product"
+  participant(p): "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.Product"
+  condition: (p.role === "ARTISAN")
+  action: ALLOW
+}
+
+rule OnlyArtisanAndQualitynalystCanUpdateProduct {
+  description: "only artisan can create product"
+  participant(p): "org.trade.com.User"
+  operation: UPDATE
+  resource(r): "org.trade.com.Product"
+  condition: ((p.role === "ARTISAN" && r.owner.getIdentifier() === p.getIdentifier()) || (p.role === "QUALITYANALYST"))
+  action: ALLOW
+}
+rule EveryoneCanSearchProductDesignByArtisanId {
+  description: "you can search for design by designers id"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.GetDesignByDesignerId"
+  action: ALLOW
+}
+rule OnlyQualityAnalystCanAddCertiificate {
+  description: "analyst are allowed to add certificate"
+  participant (p): "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.AddQualityCertificate"
+  condition: (p.role = "QUALITYANALYST")
+  action: ALLOW
+}
+
+rule AllowBuyersAndSellersToReviewPurchaseOrder {
+  description: "buyers and sellers should have permission to edit the purchaseorder"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.ReviewPurchaseOrder"
+  action: ALLOW
+}
+
+rule OnlyBuyerAndSellerCanChangePurchaseOrder {
+  description: "buyers and sellers should have permission to edit the purchaseorder"
+  participant(p): "org.trade.com.User"
+  operation: CREATE
+  resource (r): "org.trade.com.PurchaseOrder"
+  transaction: "org.trade.com.ReviewPurchaseOrder"
+  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+  action: ALLOW
+}
+
+rule EveryOneCanGenrateInvoice {
+  description: "Allow Everyone to generate invoice"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.GenerateInvoice"
+  action: ALLOW
+}
+
+rule EveryOneCanCreateInvoice {
+  description: "Allow Everyone to create invoice"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.Invoice"
+  transaction: "org.trade.com.GenerateInvoice"
+  action: ALLOW
+}
+
+rule OnlyBuyerAndSellerCanSeeTheirInvoice {
+  description: "only buyer and sellers can view there invoices"
+  participant(p): "org.trade.com.User"
+  operation: READ, UPDATE
+  resource (r): "org.trade.com.Invoice"
+  condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
+  action: ALLOW
+}
+rule EveryOneCanIssueACheque {
+  description: "Anyone can issue a cheque"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.IssueCheque"
+  action: ALLOW
+}
+rule EveryOneCanCreateCheque {
+  description: "Anyone can create a cheque"
+  participant: "org.trade.com.User"
+  operation: CREATE
+  resource: "org.trade.com.Cheque"
+  transaction: "org.trade.com.IssueCheque"
+  action: ALLOW
+}
+rule OnlyBuyerAndSellerCanSeeTheirCheques {
+  description: "buyers and sellers can see their respective cheques"
+  participant(p): "org.trade.com.User"
+  operation: READ
+  resource(r): "org.trade.com.Cheque"
+  condition: (p.getIdentifier() == r.invoice.seller.getIdentifier() || p.getIdentifier() == r.invoice.buyer.getIdentifier() )
+  action: ALLOW
+}
+
+rule BankCanViewUpdateCheque {
+  description: "bank can read and update cheque"
+  participant(p): "org.trade.com.Bank"
+  operation: READ, UPDATE
+  resource(r): "org.trade.com.Cheque"
+  condition: (p.getIdentifier() == r.bank.getIdentifier() )
+  action: ALLOW
+}
+rule BankCanTransferPayment {
+  description: "bank can transfer payment"
+  participant: "org.trade.com.Bank"
+  operation: CREATE
+  resource: "org.trade.com.MakePayment"
+  action: ALLOW
+}
+
+rule BankCanTranferOwnership {
+  description: "bank can read and update cheque"
+  participant: "org.trade.com.Bank"
+  operation: UPDATE, READ
+  resource: "org.trade.com.Product"
+  action: ALLOW
+}
+
+rule BankHasAccessToAnInvoice {
+  description: "bank can read invoice"
+  participant: "org.trade.com.Bank"
+  operation: UPDATE, READ
+  resource: "org.trade.com.Invoice"
+  action: ALLOW
+}
 

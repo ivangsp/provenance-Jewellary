@@ -22,6 +22,7 @@ services:
     container_name: orderer.trade.com
     image: hyperledger/fabric-orderer
     environment:
+      - GODEBUG=netdns=go 
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
@@ -48,6 +49,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - GODEBUG=netdns=go 
       - CORE_PEER_ID=peer0.exporterorg.trade.com
       - CORE_PEER_ADDRESS=peer0.exporterorg.trade.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.exporterorg.trade.com:7051
@@ -67,6 +69,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - GODEBUG=netdns=go 
       - CORE_PEER_ID=peer0.importerorg.trade.com
       - CORE_PEER_ADDRESS=peer0.importerorg.trade.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.importerorg.trade.com:7051
@@ -87,6 +90,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - GODEBUG=netdns=go 
       - CORE_PEER_ID=peer0.carrierorg.trade.com
       - CORE_PEER_ADDRESS=peer0.carrierorg.trade.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.carrierorg.trade.com:7051
@@ -106,6 +110,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - GODEBUG=netdns=go 
       - CORE_PEER_ID=peer0.regulatororg.trade.com
       - CORE_PEER_ADDRESS=peer0.regulatororg.trade.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.regulatororg.trade.com:7051
@@ -126,6 +131,7 @@ services:
         file: peer-base.yaml
         service: peer-base
       environment:
+        - GODEBUG=netdns=go 
         - CORE_PEER_ID=peer0.bankorg.trade.com
         - CORE_PEER_ADDRESS=peer0.bankorg.trade.com:7051
         - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.bankorg.trade.com:7051
