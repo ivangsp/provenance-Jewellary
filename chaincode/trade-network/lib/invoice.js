@@ -56,8 +56,7 @@ async function generateInvoice (request){
 
     const totalAmount = invoiceLineItems.reduce((sum, item) => sum + item.price, 0.0);
 
-    const invoiceId = '#' + new Date().getTime().toString();
-    const invoice = factory.newResource(namespace, 'Invoice', invoiceId);
+    const invoice = factory.newResource(namespace, 'Invoice',  request.invoiceId);
     invoice.totalAmount = totalAmount;
     invoice.status = 'UNPAID';
     invoice.seller = po.seller;

@@ -29,8 +29,8 @@ async function createProductDesign(designRequest) {
 
     const factory = getFactory();
 
-    const id = 'D#' + new Date().getTime().toString();
-    const design = factory.newResource(namespace, 'ProductDesign', id);
+    // const id = 'D#' + new Date().getTime().toString();
+    const design = factory.newResource(namespace, 'ProductDesign', designRequest.designId);
     design.material = designRequest.material;
     design.specification = designRequest.specification;
     const designers = [];

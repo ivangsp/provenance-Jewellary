@@ -28,8 +28,8 @@ async function issueCheque (request) {
     const factory = getFactory();
 
 
-    const id = new Date().getTime().toString();
-    const cheque = factory.newResource(namespace, 'Cheque', id);
+    // const id = new Date().getTime().toString();
+    const cheque = factory.newResource(namespace, 'Cheque', request.chequeId);
   	cheque.benficiary = request.invoice.seller.userName;
   	cheque.from = request.invoice.buyer.userName;
   	cheque.amount = request.invoice.totalAmount;
@@ -72,21 +72,20 @@ async function makePayment (request) {
     const lineItems = request.cheque.invoice.invoiceLineItem;
     const prodRegistry = await getAssetRegistry('org.trade.com.Product');
 
-    const promise = lineItems.map(item => {
-        const product = prodRegistry.get(item.serial_number);
+    const promises = lineItems.map(async item => {
+        const product = await prodRegistry.get(item.serial_number);
         return product;
 
     });
     // eslint-disable-next-line no-undef
-    const products = await Promise.all(promise);
+    const products = await Promise.all(promises);
 
     products.map(prod =>{
         prod.owner = request.cheque.invoice.buyer;
     });
-
     cheque.status = 'PAID';
     const chequeReg = await getAssetRegistry('org.trade.com.Cheque');
-    chequeReg.update(cheque);
+    await chequeReg.update(cheque);
     await prodRegistry.updateAll(products);
 
     // emit event
