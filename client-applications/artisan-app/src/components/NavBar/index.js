@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
+import { Link } from "react-router-dom";
+
 
 const NavBar = props => {
     return(
@@ -13,13 +15,13 @@ const NavBar = props => {
             <div className="container">
               <ul className="navbar-nav mr-auto">
                 <li className="nav-item active">
-                  <a className="nav-link" href="#">create Design <span className="sr-only">(current)</span></a>
+                  <Link className="nav-link" to="/design/edit=new">create Design <span className="sr-only">(current)</span></Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="#">create articraft</a>
+                  <Link className="nav-link" to="/">create articraft</Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="#">designs</a>
+                  <Link className="nav-link" to="/designs">designs</Link>
                 </li>
               </ul>
             </div>

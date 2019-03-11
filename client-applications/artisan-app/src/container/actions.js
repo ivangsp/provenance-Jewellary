@@ -1,10 +1,13 @@
 import axios from 'axios';
 
 const BASE_URL = 'http://localhost:3000/api/';
-export const createAsset = params =>
+
+export const createAsset = (params, asset) =>
   axios
-    .post(`${BASE_URL}ProductItem`, params)
-    .then(resp => resp)
+    .post(BASE_URL + asset, params)
+    .then(resp => {
+      console.log('response', resp)
+    })
     .catch(e => {
       console.warn('ERRROR>>', e);
     });

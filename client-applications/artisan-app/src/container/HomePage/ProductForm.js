@@ -1,5 +1,5 @@
 import React from 'react';
-import { createAsset } from './actions';
+import { createAsset } from '../actions';
 
 export default class ProductForm extends React.Component {
   constructor(props) {
