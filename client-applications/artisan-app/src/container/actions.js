@@ -12,9 +12,9 @@ export const createAsset = (params, asset) =>
       console.warn('ERRROR>>', e);
     });
 
-export const fetchAlProducts = () =>
+export const fetchAssets = asset =>
   axios
-    .get(`${BASE_URL}ProductItem`)
+    .get(BASE_URL + asset)
     .then(resp => resp)
     .catch(e => {
       console.warn('ERRROR>>', e);

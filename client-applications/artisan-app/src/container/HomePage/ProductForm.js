@@ -1,66 +1,90 @@
 import React from 'react';
-import { createAsset } from '../actions';
+import { createAsset, fetchAssets } from '../actions';
+
 
 export default class ProductForm extends React.Component {
   constructor(props) {
     super(props);
+    this.designs = [];
 
-    this.handleChange = this.handleChange.bind(this);
-    this.encodeImageFileAsURL = this.encodeImageFileAsURL.bind(this);
-    this.submitForm = this.submitForm.bind(this);
-    this.image = '';
-
-    this.state = {};
+    this.state = {
+      name: '',
+      price: 0.0,
+      location: '',
+      design: ''
+    };
   }
 
-  handleChange(e) {
+  async componentDidMount () {
+    try {
+      const designs = await fetchAssets('ProductDesign');
+      if (designs) {
+        this.designs = designs.data;
+      }
+    }
+    catch (e) {
+      console.warn(e);
+    }
+  }
+
+  handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
     this.setState({
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   }
 
-  async submitForm() {
+  submitForm = async() => {
     const params = {
-      $class: 'org.trade.com.ProductItem',
+      ...this.state,
+      $class: 'org.trade.com.Product',
       serial_number: new Date().getTime().toString(),
-      owner: 'resource:org.trade.com.Trader#T1',
-      image: this.image,
-      productInfo: {
-        ...this.state,
-        quantity: 1,
-        $class: 'org.trade.com.Product',
-      },
-      date_created: '2018-12-29T17:48:10.752Z',
-      location: 'Tallinn',
+      owner: 'resource:org.trade.com.User#artisan1',
+      design: 'resource:org.trade.com.ProductDesign#'+this.state.design,
+      dateCreated: new Date (),
     };
-    await createAsset(params);
+    await createAsset(params, 'Product');
   }
 
-  encodeImageFileAsURL() {
+  encodeImageFileAsURL = () => {
     const file = document.getElementById('uploadImg').files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
       document.getElementById('uploaded-image').src = reader.result;
-      this.image = reader.result;
+      this.setState({image: reader.result});
     };
     reader.readAsDataURL(file);
   }
 
   render() {
+    const designs = this.designs.map((design, index) => (
+      <option value={design.id} key={index}>{design.name}</option>
+    ));
+
     return (
       <div className="row">
         <div className="col-12">
           <div className="form-group">
-            <label htmlFor="name">Design Name:</label>
+            <label htmlFor="name">Product Name:</label>
             <input
               type="text"
-              name="design"
+              name="name"
+              value={this.state.name}
               className="form-control"
-              placeholder="Enter the design name"
+              placeholder="Enter  product name"
               onChange={this.handleChange}
             />
           </div>
-        
+          <div className="form-group">
+            <label htmlFor="design">Select Design</label>
+            <select name="design" className="form-control" id="design" onChange={this.handleChange} >
+              <option>Select the design</option>
+              {designs}
+            </select>
+            
+          </div>
+
 
           <div className="form-group">
             <label htmlFor="image">Upload Product Image</label>
@@ -77,6 +101,7 @@ export default class ProductForm extends React.Component {
             <input
               type="text"
               name="price"
+              value={this.state.price}
               className="form-control"
               placeholder="Enter product price"
               onChange={this.handleChange}
@@ -88,9 +113,10 @@ export default class ProductForm extends React.Component {
             <input
               type="text"
               name="location"
+              value={this.state.location}
               className="form-control"
               placeholder="Enter Location"
-              // onChange={this.handleChange}
+              onChange={this.handleChange}
             />
           </div>
         </div>
@@ -107,7 +133,7 @@ export default class ProductForm extends React.Component {
               name="description"
               className="form-control"
               placeholder="Enter product description"
-              onChange={this.handleChange}
+              // onChange={this.handleChange}
             />
           </div>
         </div>

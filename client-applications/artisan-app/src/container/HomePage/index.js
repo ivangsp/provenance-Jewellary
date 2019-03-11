@@ -11,7 +11,7 @@
 
 import React from 'react';
 import ProductForm from './ProductForm';
-import { fetchAlProducts } from '../actions';
+import { fetchAssets } from '../actions';
 import { ProductListItem } from './ProductList';
 
 export default class HomePage extends React.Component {
@@ -24,7 +24,7 @@ export default class HomePage extends React.Component {
 
   async componentDidMount() {
     try {
-      const products = await fetchAlProducts();
+      const products = await fetchAssets('Product');
       this.setState({
         products: products.data,
       });
