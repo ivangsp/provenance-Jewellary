@@ -36,14 +36,24 @@ rule NetworkAdminSystem {
 }
 rule EveryParticipatCanSeeEachOther {
     description: "Allow all participants to see each other"
-    participant: "org.trade.com.User"
+    participant: "org.trade.com.Person"
     operation: READ
-    resource: "org.trade.com.User"
+    resource: "org.trade.com.Person"
     action: ALLOW
 }
+
+rule EveryParticipatCanEditTheirInformation {
+    description: "Allow all participants to see each other"
+    participant(p): "org.trade.com.Person"
+    operation: UPDATE
+    resource(r): "org.trade.com.Person"
+  	condition: (p.getIdentifier() === r.getIdentifier())
+    action: ALLOW
+}
+
 rule EveryOneCanSeeBank {
     description: "Allow all participants to see bank"
-    participant: "org.trade.com.User"
+    participant: "org.trade.com.Person"
     operation: READ
     resource: "org.trade.com.Bank"
     action: ALLOW
@@ -52,57 +62,71 @@ rule EveryOneCanSeeBank {
 
 rule EveryoneCanSeeProductDesign {
     description: "Allow all participants full access to their assets"
-    participant: "org.trade.com.User"
+    participant: "org.trade.com.Person"
     operation: READ
     resource: "org.trade.com.ProductDesign"
     action: ALLOW
 }
 rule EveryDesignerCanCreateDesign {
     description: "Allow designers to create designs"
-    participant(p): "org.trade.com.User"
+    participant: "org.trade.com.Designer"
     operation: CREATE
     resource: "org.trade.com.ProductDesign"
-    condition: (p.role === "DESIGNER")
     action: ALLOW
 }
-
-
 rule EveryOneCanSeeProducts {
     description: "Allow all participants full access to their assets"
-    participant: "org.trade.com.User"
+    participant: "org.trade.com.Person"
     operation: READ
     resource: "org.trade.com.Product"
     action: ALLOW
 }
+
+rule OnlyArtisanAndOwnersCanMakeChangesToAproduct {
+    description: "only artisans and onwers can make changes to a product"
+    participant(p): "org.trade.com.Person"
+    operation: UPDATE
+    resource(r): "org.trade.com.Product"
+  	condition: (r.owner.getIdentifier() === p.getIdentifier() || p.company.name === r.owner.company.name)
+    action: ALLOW
+}
+
+
 rule OnlyBuyersAndSellersHaveAccessToPurchaseOrder {
     description: "Only buyers and sellers have full access to their po"
-    participant(p): "org.trade.com.User"
+    participant(p): "org.trade.com.Person"
     operation: ALL
     resource(r): "org.trade.com.PurchaseOrder"
     condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
     action: ALLOW
 }
+rule BankEmployeeCanReadPurchaseOrder {
+    description: "Bank employee can read po that theya re assoicated with"
+    participant: "org.trade.com.BankEmployee"
+    operation: READ
+    resource: "org.trade.com.PurchaseOrder"
+    action: ALLOW
+}
 rule OnlyBuyerAndSellerHaveAccessToInvoices {
     description: "only buyers and sellers have access to the invoices"
-    participant: "org.trade.com.User"
+    participant: "org.trade.com.Person"
     operation: ALL
     resource: "org.trade.com.Invoice"
     condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
     action: ALLOW
 }
-
-rule OwnerFullAccessToTheirProducts {
-    description: "Allow all participants full access to their assets"
-    participant(p): "org.trade.com.User"
-    operation: CREATE, UPDATE
-    resource(r): "org.trade.com.Product"
-    condition: (r.owner.getIdentifier() === p.getIdentifier())
+rule BankEmployeeCanReadInvoices {
+    description: "Bank employee can read invoices theya re assoicated with"
+    participant: "org.trade.com.BankEmployee"
+    operation: READ
+    resource: "org.trade.com.Invoice"
     action: ALLOW
 }
 
+
 rule AnyOneCanCreatePurchaseOrder {
   description: "Both buyer and seller have full access rights"
-  participant: "org.trade.com.User"
+  participant: "org.trade.com.Person"
   operation: CREATE
   resource: "org.trade.com.PurchaseOrder"
   action: ALLOW
@@ -110,7 +134,7 @@ rule AnyOneCanCreatePurchaseOrder {
 
 rule OnlyBuyerAndSellerHaveFullAccessToPo {
   description: "Both buyer and seller have full access rights to the PO"
-  participant(p): "org.trade.com.User"
+  participant(p): "org.trade.com.Person"
   operation: UPDATE, READ
   resource(r): "org.trade.com.PurchaseOrder"
   condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
@@ -119,66 +143,70 @@ rule OnlyBuyerAndSellerHaveFullAccessToPo {
 
 rule OnlyDesignersCancreateDesign {
   description: "only designers can create design"
-  participant(p): "org.trade.com.User"
-  operation: CREATE
+  participant: "org.trade.com.Designer"
+  operation: ALL
   resource: "org.trade.com.ProductDesign"
-  condition: (p.role === "DESIGNER")
   action: ALLOW
 }
 
-rule DesignersCanOnlyEditTheirOwnDesign {
-  description: "designers can edit their own design"
-  participant(p): "org.trade.com.User"
-  operation: UPDATE
-  resource(r): "org.trade.com.ProductDesign"
-  condition: (p.role === "DESIGNER" && (r.designers.includes(p)))
-  action: ALLOW
+rule onlyArtisanCanCreateProduct {
+    description: "Allow all participants full access to their assets"
+    participant: "org.trade.com.Artisan"
+    operation: CREATE
+    resource: "org.trade.com.Product"
+    action: ALLOW
 }
-
 rule OnlyArtisanCanCreateProduct {
   description: "only artisan can create product"
-  participant(p): "org.trade.com.User"
-  operation: CREATE
-  resource: "org.trade.com.Product"
-  condition: (p.role === "ARTISAN")
+  participant: "org.trade.com.Artisan"
+  operation: CREATE, READ
+  resource: "org.trade.com.CreateProduct"
   action: ALLOW
 }
 
-rule OnlyArtisanAndQualitynalystCanUpdateProduct {
+rule OnlyArtisanHasCreateAccessRights{
   description: "only artisan can create product"
-  participant(p): "org.trade.com.User"
-  operation: UPDATE
-  resource(r): "org.trade.com.Product"
-  condition: ((p.role === "ARTISAN" && r.owner.getIdentifier() === p.getIdentifier()) || (p.role === "QUALITYANALYST"))
+  participant: "org.trade.com.Artisan"
+  operation: ALL
+  resource: "org.trade.com.Product"
+  transaction: "org.trade.com.CreateProduct" 
   action: ALLOW
 }
+
 rule EveryoneCanSearchProductDesignByArtisanId {
   description: "you can search for design by designers id"
-  participant: "org.trade.com.User"
-  operation: CREATE
+  participant: "org.trade.com.Person"
+  operation: CREATE, READ
   resource: "org.trade.com.GetDesignByDesignerId"
   action: ALLOW
 }
-rule OnlyQualityAnalystCanAddCertiificate {
+
+rule QualityAnalystCabCreateCertificate {
   description: "analyst are allowed to add certificate"
-  participant (p): "org.trade.com.User"
+  participant: "org.trade.com.QualityAnalyst"
   operation: CREATE
   resource: "org.trade.com.AddQualityCertificate"
-  condition: (p.role = "QUALITYANALYST")
+  action: ALLOW
+}
+rule GrantQUalityAnalystPermissionToAddcertificate {
+  description: "allow quality analyst to add certificate"
+  participant: "org.trade.com.QualityAnalyst"
+  operation: UPDATE
+  resource: "org.trade.com.Product"
   action: ALLOW
 }
 
 rule AllowBuyersAndSellersToReviewPurchaseOrder {
   description: "buyers and sellers should have permission to edit the purchaseorder"
-  participant: "org.trade.com.User"
-  operation: CREATE
+  participant: "org.trade.com.Person"
+  operation: CREATE, READ
   resource: "org.trade.com.ReviewPurchaseOrder"
   action: ALLOW
 }
 
 rule OnlyBuyerAndSellerCanChangePurchaseOrder {
   description: "buyers and sellers should have permission to edit the purchaseorder"
-  participant(p): "org.trade.com.User"
+  participant(p): "org.trade.com.Person"
   operation: CREATE
   resource (r): "org.trade.com.PurchaseOrder"
   transaction: "org.trade.com.ReviewPurchaseOrder"
@@ -188,15 +216,15 @@ rule OnlyBuyerAndSellerCanChangePurchaseOrder {
 
 rule EveryOneCanGenrateInvoice {
   description: "Allow Everyone to generate invoice"
-  participant: "org.trade.com.User"
-  operation: CREATE
+  participant: "org.trade.com.Person"
+  operation: CREATE, READ
   resource: "org.trade.com.GenerateInvoice"
   action: ALLOW
 }
 
 rule EveryOneCanCreateInvoice {
   description: "Allow Everyone to create invoice"
-  participant: "org.trade.com.User"
+  participant: "org.trade.com.Person"
   operation: CREATE
   resource: "org.trade.com.Invoice"
   transaction: "org.trade.com.GenerateInvoice"
@@ -205,7 +233,7 @@ rule EveryOneCanCreateInvoice {
 
 rule OnlyBuyerAndSellerCanSeeTheirInvoice {
   description: "only buyer and sellers can view there invoices"
-  participant(p): "org.trade.com.User"
+  participant(p): "org.trade.com.Person"
   operation: READ, UPDATE
   resource (r): "org.trade.com.Invoice"
   condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
@@ -213,14 +241,15 @@ rule OnlyBuyerAndSellerCanSeeTheirInvoice {
 }
 rule EveryOneCanIssueACheque {
   description: "Anyone can issue a cheque"
-  participant: "org.trade.com.User"
-  operation: CREATE
+  participant: "org.trade.com.Person"
+  operation: CREATE, READ
   resource: "org.trade.com.IssueCheque"
   action: ALLOW
 }
+
 rule EveryOneCanCreateCheque {
   description: "Anyone can create a cheque"
-  participant: "org.trade.com.User"
+  participant: "org.trade.com.Person"
   operation: CREATE
   resource: "org.trade.com.Cheque"
   transaction: "org.trade.com.IssueCheque"
@@ -228,16 +257,17 @@ rule EveryOneCanCreateCheque {
 }
 rule OnlyBuyerAndSellerCanSeeTheirCheques {
   description: "buyers and sellers can see their respective cheques"
-  participant(p): "org.trade.com.User"
+  participant(p): "org.trade.com.Person"
   operation: READ
   resource(r): "org.trade.com.Cheque"
   condition: (p.getIdentifier() == r.invoice.seller.getIdentifier() || p.getIdentifier() == r.invoice.buyer.getIdentifier() )
   action: ALLOW
 }
 
-rule BankCanViewUpdateCheque {
+
+rule BankCanViewAndUpdateCheque {
   description: "bank can read and update cheque"
-  participant(p): "org.trade.com.Bank"
+  participant(p): "org.trade.com.BankEmployee"
   operation: READ, UPDATE
   resource(r): "org.trade.com.Cheque"
   condition: (p.getIdentifier() == r.bank.getIdentifier() )
@@ -246,14 +276,14 @@ rule BankCanViewUpdateCheque {
 rule BankCanTransferPayment {
   description: "bank can transfer payment"
   participant: "org.trade.com.Bank"
-  operation: CREATE
+  operation: CREATE, READ
   resource: "org.trade.com.MakePayment"
   action: ALLOW
 }
 
 rule BankCanTranferOwnership {
   description: "bank can read and update cheque"
-  participant: "org.trade.com.Bank"
+  participant: "org.trade.com.BankEmployee"
   operation: UPDATE, READ
   resource: "org.trade.com.Product"
   action: ALLOW
@@ -266,4 +296,288 @@ rule BankHasAccessToAnInvoice {
   resource: "org.trade.com.Invoice"
   action: ALLOW
 }
+rule BankCanSeeUsers {
+    description: "Allow bank to see the users on the network"
+    participant: "org.trade.com.Bank"
+    operation: READ
+    resource: "org.trade.com.*"
+    action: ALLOW
+}
+
+rule ArtisanFromSokoCanAddValueAdditionToProduct {
+  description: "artisan from soko can add value addition to the product"
+  participant: "org.trade.com.Person"
+  operation: CREATE, READ
+  resource: "org.trade.com.AddValueAddition"
+  action: ALLOW
+}
+
+rule SokoCanAddValueAdditionToProduct {
+  description: "artisan from soko can add value addition to the product"
+  participant(p): "org.trade.com.Person"
+  operation: UPDATE
+  resource(r): "org.trade.com.Product"
+  transaction: "org.trade.com.AddValueAddition"
+  condition: (r.owner.company.name == p.getIdentifier().company.name)
+  action: ALLOW
+} 
+
+rule TradersCanSeeBankEmployee {
+	description: "Let traders see their BankEmployees"
+  	participant(p): "org.trade.com.Person"
+  	operation: READ
+    resource(r): "org.trade.com.BankEmployee"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSeeTraders {
+	description: "Let BankEmployees see the traders"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: READ
+    resource(r): "org.trade.com.Trader"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSeeArtisan {
+	description: "Let BankEmployees see the artisans who have account in their banks"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: READ
+    resource(r): "org.trade.com.Artisan"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSeeBankEmployee {
+	description: "Let BankEmployees see their colleagues"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: READ
+    resource(r): "org.trade.com.BankEmployee"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule TraderCanRequestLetterOfCredit {
+	description: "All traders can request for a letter of credit from there bank"
+  	participant: "org.trade.com.Trader"
+  	operation: CREATE, READ
+    resource: "org.trade.com.RequestLetterOfCredit"
+  	action: ALLOW
+}
+
+rule TraderHasCreateAcessToLoc {
+	description: "All traders can create a LetterOfCredit asset"
+  	participant: "org.trade.com.Trader"
+  	operation: CREATE, READ
+    resource: "org.trade.com.LetterOfCredit"
+  	transaction: "org.trade.com.RequestLetterOfCredit"
+  	action: ALLOW
+}
+
+rule ArtisansCanViewLetterOfCredit {
+	description: "All artisan can view letters of credit they are involved with"
+  	participant(p): "org.trade.com.Person"
+  	operation: READ
+    resource(r): "org.trade.com.LetterOfCredit"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+
+rule BankEmployeeViewLetterOfCredit {
+	description: "All bank employees can view letters of credit their bank is involved with"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: READ
+    resource(r): "org.trade.com.LetterOfCredit"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule ArtisanApproveApplication {
+	description: "All artisans can submit an Approve transaction for an LoC they are involved with"
+  	participant(p): "org.trade.com.Artisan"
+  	operation: CREATE, READ
+    resource(r): "org.trade.com.ApproveLetterOfCredit"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier() || p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeApproveApplication {
+	description: "All bank employees can submit an Approve transaction for an LoC their bank is involved with"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: CREATE, READ
+    resource(r): "org.trade.com.ApproveLetterOfCredit"
+    condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule ArtisanAddApproval {
+	description: "All artisans can add their approval to a Letter of Credit they are involved with"
+  	participant(p): "org.trade.com.Artisan"
+  	operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+  	transaction(t): "org.trade.com.ApproveLetterOfCredit"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeAddApproval {
+	description: "All bank employee can add their approval to a Letter of Credit their bank is involved with"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+  	transaction(t): "org.trade.com.ApproveLetterOfCredit"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule ArtisanOrTraderCanRejectApplication {
+	description: "All customers can submit a Reject transaction for an LoC they are involved with"
+  	participant(p): "org.trade.com.Person"
+  	operation: CREATE, READ
+    resource(r): "org.trade.com.RejectLetterOfCredit"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier() || p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeRejectApplication {
+	 description: "All bank employees can submit a Reject transaction for an LoC their bank is involved with"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: CREATE, READ
+    resource(r): "org.trade.com.RejectLetterOfCredit"
+    condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerMarksAsRejected {
+	description: "All customers can update a LetterOfCredit they are involved with with a REJECTED status"
+  	participant(p): "org.trade.com.Person"
+  	operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+  	transaction(t): "org.trade.com.RejectLetterOfCredit"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeMarksAsRejected {
+	description: "All bank employees can update a LetterOfCredit their bank is involved with with a REJECTED status"
+  	participant(p): "org.trade.com.BankEmployee"
+  	operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+  	transaction(t): "org.trade.com.RejectLetterOfCredit"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BeneficiaryShipProduct {
+    description: "The beneficiary send a transaction to mark a letter of credit as relating to goods that have been shipped"
+    participant(p): "org.trade.com.Artisan"
+    operation: CREATE, READ
+    resource(r): "org.trade.com.ShipProduct"
+    condition: (p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+    action: ALLOW
+}
+
+rule BeneficiaryMarkAsShippedProduct {
+    description: "The applicant can mark a letter of credit as relating to goods that have been shipped"
+    participant(p): "org.trade.com.Artisan"
+    operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+    transaction(t): "org.trade.com.ShipProduct"
+    condition: (p.getIdentifier() === r.beneficiary.getIdentifier())
+    action: ALLOW
+}
+
+rule ApplicantReceiveProduct {
+    description: "The applicant send a transaction to mark a letter of credit as relating to goods that have been received"
+    participant(p): "org.trade.com.Trader"
+    operation: CREATE, READ
+    resource(r): "org.trade.com.ReceiveProduct"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier())
+    action: ALLOW
+}
+
+rule ApplicantMarkAsReceivedProduct {
+    description: "The applicant can mark a letter of credit as relating to goods that have been received"
+    participant(p): "org.trade.com.Trader"
+    operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+    transaction(t): "org.trade.com.ReceiveProduct"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier())
+    action: ALLOW
+}
+
+rule BankEmployeeCanMakePayment {
+    description: "The issuing bank employee can make state the letter as paid"
+    participant: "org.trade.com.BankEmployee"
+    operation: CREATE, READ
+    resource: "org.trade.com.MakePayment"
+    action: ALLOW
+}
+
+rule BankEmployeeMakesPayment {
+    description: "The issuing bank employee can mark the letter as ready for payment"
+    participant: "org.trade.com.BankEmployee"
+    operation: UPDATE, READ
+    resource: "org.trade.com.LetterOfCredit"
+    transaction: "org.trade.com.MakePayment"
+    action: ALLOW
+}
+
+rule OnlyArtisanCanAknwoledgePayment {
+    description: "The artisan can aknwoledge payment "
+    participant: "org.trade.com.Artisan"
+    operation: CREATE, READ
+    resource: "org.trade.com.AcknowledgePayment"
+    action: ALLOW
+}
+
+rule ArtisanCanAknwoledgePayment {
+    description: "The artisan can aknwoledge payment "
+    participant(p): "org.trade.com.Artisan"
+    operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+    transaction: "org.trade.com.AcknowledgePayment"
+    condition: (p.getIdentifier() === r.beneficiary.getIdentifier())
+    action: ALLOW
+}
+
+rule ExportingBankCloseLetter {
+    description: "The exporting bank employee can close the letter"
+    participant(p): "org.trade.com.BankEmployee"
+    operation: CREATE, READ
+    resource(r): "org.trade.com.TransferHandcraft"
+    condition: (p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+    action: ALLOW
+}
+
+rule ExportingBankMarkLetterClosed {
+    description: "The exporting bank employee can mark the letter as closed"
+    participant(p): "org.trade.com.BankEmployee"
+    operation: UPDATE, READ
+    resource(r): "org.trade.com.LetterOfCredit"
+    transaction(t): "org.trade.com.TransferHandcraft"
+    condition: (p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+    action: ALLOW
+}
+
+rule ExportingBankTransfersHandcraft {
+    description: "The exporting bank employee transfers ownership of handcraft"
+    participant(p): "org.trade.com.BankEmployee"
+    operation: UPDATE, READ
+    resource(r): "org.trade.com.Product"
+    transaction(t): "org.trade.com.TransferHandcraft"
+    condition: (p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+    action: ALLOW
+}
+rule EveryOneCanSearchForproductHistory {
+    description: "everyone can search for product history"
+    participant: "org.trade.com.*"
+    operation: ALL
+    resource: "org.trade.com.SearchProductHistory"
+    action: ALLOW
+}
+
+
 

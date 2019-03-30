@@ -18,33 +18,35 @@
 
 /* global getFactory getAssetRegistry getParticipantRegistry emit query */
 
-/**
- *
- * @param {org.trade.com.CreatePurchaseOrder} createPurchaseOrder - the createPurchaseOrder transaction
- * @transaction
- */
-async function createPurchaseOrder(poRequest) {
-    const namespace = 'org.trade.com';
 
-    const factory = getFactory();
+// /**
+//  *
+//  * @param {org.trade.com.CreatePurchaseOrder} createPurchaseOrder - the createPurchaseOrder transaction
+//  * @transaction
+//  */
+// async function createPurchaseOrder(poRequest) {
+//     const namespace = 'org.trade.com';
 
-    const po = factory.newResource(namespace, 'PurchaseOrder', poRequest.id);
-    po.buyer = factory.newRelationship(namespace, 'Trader', poRequest.buyer.getIdentifier());
-    po.seller = factory.newRelationship(namespace, 'Trader', poRequest.seller.getIdentifier());
-    po.total_Amount = poRequest.total_Amount;
-    po.status = 'WAITING_APPROVAL';
-    po.products = poRequest.products;
-    po.issue_date = new Date();
+//     const factory = getFactory();
 
-    //save the po
-    const assetRegistry = await getAssetRegistry(po.getFullyQualifiedType());
-    await assetRegistry.add(po);
+//     const po = factory.newResource(namespace, 'PurchaseOrder', poRequest.id);
+//     po.buyer = factory.newRelationship(namespace, 'Trader', poRequest.buyer.getIdentifier());
+//     po.seller = factory.newRelationship(namespace, 'Trader', poRequest.seller.getIdentifier());
+//     po.total_Amount = poRequest.total_Amount;
+//     po.status = 'WAITING_APPROVAL';
+//     po.products = poRequest.products;
+//     po.issue_date = new Date();
 
-    // emit event
-    const poEvent = factory.newEvent(namespace, 'CreatePurchaseOrderEvent');
-    poEvent.po = po;
-    emit(poEvent);
-}
+//     //save the po
+//     const assetRegistry = await getAssetRegistry(po.getFullyQualifiedType());
+//     await assetRegistry.add(po);
+
+//     // emit event
+//     const poEvent = factory.newEvent(namespace, 'CreatePurchaseOrderEvent');
+//     poEvent.po = po;
+//     emit(poEvent);
+// }
+
 
 
 /**

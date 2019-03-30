@@ -25,7 +25,6 @@
  */
 async function generateInvoice (request){
     const namespace = 'org.trade.com';
-
     const factory = getFactory();
 
     const assetRegistry = await getAssetRegistry('org.trade.com.PurchaseOrder');
@@ -36,6 +35,7 @@ async function generateInvoice (request){
     const invoiceLineItems = [];
     for (const item in poLineItems) {
         const availableProducts = await query('findProductByName', {name: poLineItems[item].name});
+
         if(poLineItems[item].amount > availableProducts.length){
             // eslint-disable-next-line no-throw-literal
             throw 'There is no enough ' + poLineItems[item].name + 'to full fill the order';
@@ -53,6 +53,7 @@ async function generateInvoice (request){
 
 
     }
+	  console.log('poLineItems>>>', invoiceLineItems);
 
     const totalAmount = invoiceLineItems.reduce((sum, item) => sum + item.price, 0.0);
 
@@ -73,3 +74,4 @@ async function generateInvoice (request){
 
 
 }
+
