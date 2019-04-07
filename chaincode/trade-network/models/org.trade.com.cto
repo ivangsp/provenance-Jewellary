@@ -19,40 +19,6 @@
 namespace org.trade.com
 
 
-asset Invoice identified by id {
-  o String id
-  o InvoiceLineItem [] invoiceLineItem
-  o Double totalAmount
-  o InvoiceStatus status
-  --> Person seller
-  --> Person buyer
-}
-
-asset Cheque identified by id {
- o String id
- o String benficiary
- --> Bank bank
- o String from
- o String accountNumber
- o Double amount
- --> Invoice invoice
- o ChequeStatus status 
-}
-
-asset LetterOfCredit identified by id {
-	o String id
-    --> Person beneficiary
-    --> Person applicant
-    --> Bank issuingBank
-    --> Bank exportingBank
-    --> Person [] approval
-    o Rule [] rules
-    o LetterOfCreditStatus status
-    --> PurchaseOrder purchaseOrder
-    o String closeReason optional
-    o String [] evidence optional
-}
-
 // PARTICIPANTS
 abstract participant Person identified by id {
   o String id
@@ -61,6 +27,7 @@ abstract participant Person identified by id {
   --> Bank bank
   o String email
   o String accountNumber
+  o String address
 }
 
 participant Artisan extends Person {
@@ -88,173 +55,81 @@ participant QualityAnalyst extends Person {
   o Company company optional
 }
 
-// TRANSACTIONS
-transaction CreateProduct {
+  
+asset Product identified by serial_number {
   o String serial_number
   o String image
   o String name
-  o String location
   o Double price
-  o String [] artisanIds
-  o String designId
-  o String ownerId
+  o String location
+  --> Artisan [] artisans
+  --> ProductDesign design
+  --> Person owner
+  o QualityCertificate qualityCertificate optional
+  o ValueAdditionActivity [] valueAdditionActivities optional
 }
-
-event ProductEvent {
-  o String [] transactionIds
-  o Product product
-}
-
-transaction SearchProductHistory {
- o String serial_number 
-}
-
-event SearchProductHistoryEvent {
-	o TransactionHistory [] productHistory
-}
-
-concept TransactionHistory {
-	o String transactionId
-	o Product product
-	o Person  personInvoking
-	o String transaction
-    o DateTime timeStamp    
-}
-
-transaction CreateProductDesign {
-  o String name
-  o String designId
-  o BillOfMaterial [] material
-  o Specification specification  
-  o String [] designers
-}
-
-transaction GetDesignByDesignerId {
-  o String designerId
-}
-
-event DesignInfo {
-  o ProductDesignInfo [] designs
-}
-
-transaction AddQualityCertificate {
-  o String productId
-  o QualityStatus status
-  o String userId
-}
-
-transaction ReviewPurchaseOrder {
-  o String purchaseOrderId
-  o POStatus status
-  o String description optional
-}
-event PurchaseOrderInfoEvent {
-  o PurchaseOrder purchaseOrder
-}
-
-transaction GenerateInvoice {
-  o String purchaseOrderId
-  o String invoiceId
-}
-
-event GenerateInvoiceEvent {
-  o Invoice invoice
-}
-
-transaction IssueCheque {
-  --> Invoice invoice
-  --> Bank  bank
-  o String chequeId
-}
-
-event ChequeEvent {
- o Cheque cheque
-}
-
-transaction AddValueAddition {
-  o String productId
-  o String activityName
-  --> Person performedBy
-}
-
-transaction RequestLetterOfCredit {
+ 
+asset ProductDesign identified by id {
   o String id
-  --> Person beneficiary
-  --> Person applicant
-  o Rule [] rules
-  --> PurchaseOrder purchaseOrder
+	o String name
+  --> Person [] designers
+  o BillOfMaterial [] material
+  o Specification specification
 }
 
-event RequestLetterOfCreditEvent {
-  --> LetterOfCredit loc
+
+asset LetterOfCredit identified by id {
+	o String id
+    --> Person beneficiary
+    --> Person applicant
+    --> Bank issuingBank
+    --> Bank exportingBank
+    --> Person [] approval
+    o Rule [] rules optional
+    o LetterOfCreditStatus status
+    --> PurchaseOrder purchaseOrder
+    o String closeReason optional
+    --> BillOfLanding billOfLanding optional
 }
 
-transaction ApproveLetterOfCredit {
-  --> LetterOfCredit loc
-  --> Person approvingParty
+
+asset PurchaseOrder identified by id {
+  o String id
+  o POStatus status
+  o PurchaseOrderLineItem [] products
+  o Double totalAMount
+  o String description optional
+  --> Person seller
+  --> Person buyer
 }
 
-event ApproveLetterOfCreditEvent {
-  --> LetterOfCredit loc
-  --> Person approvingParty
+asset BillOfLanding identified by trackingNumber {
+  o String trackingNumber
+  o String sender
+  o String receiver 
+  o String senderAddress 
+  o String receiverAddress
+  o Cargo [] cargo
+  o BillOfLandingStatus status
 }
 
-transaction RejectLetterOfCredit {
-  --> LetterOfCredit loc
-  o String closeReason
+asset Invoice identified by id {
+  o String id
+  o InvoiceLineItem [] invoiceLineItem
+  o Double totalAmount
+  o InvoiceStatus status
+  --> Person seller
+  --> Person buyer
 }
 
-event RejectLetterOfCreditEvent {
-  --> LetterOfCredit loc
-  o String rejectionReason
-}
-
-transaction ShipProduct {
-  --> LetterOfCredit loc
-  o String evidence
-}
-
-event ShipProductEvent {
-  --> LetterOfCredit loc
-}
-
-transaction ReceiveProduct {
-  --> LetterOfCredit loc
-  o String evidence
-}
-
-event ReceiveProductEvent {
-  --> LetterOfCredit loc
-}
-
-transaction MakePayment {
-  --> LetterOfCredit loc
-  --> BankEmployee bankEmployee
-}
-
-event MakePaymentEvent {
-	--> LetterOfCredit loc
-}
-
-transaction AcknowledgePayment {
---> LetterOfCredit loc
-}
-
-event AcknowledgePaymentEvent {
-	o LetterOfCredit loc
-}
-
-transaction TransferHandcraft{
-  --> LetterOfCredit loc
-  --> Invoice invoice
-}
-
-event TransferHandcraftEvent{
-  --> LetterOfCredit loc
-  o String [] transactionIds
-}
-
-transaction CreateDemoParticipants {
+asset ProductHistory identified by transactionId {
+ o String transactionId
+ o String serial_number
+ o Person  personInvoking
+ o Product product optional
+ o ProductDesign design optional
+ o String transaction
+ o DateTime timestamp 
 }
 
 // ENUMS
@@ -305,6 +180,7 @@ concept Company {
   o String name
   o String address
 }
+
 concept Specification {
   o String width
   o String length
@@ -317,6 +193,11 @@ concept BillOfMaterial {
   o Double quntity
 }
  
+concept ValueAdditionActivity {
+  o String activityName
+  --> Person performedBy
+}
+
 concept QualityCertificate {
   o QualityStatus status
   --> Person issuedBy
@@ -340,10 +221,6 @@ concept InvoiceLineItem {
   o String name
   o Double price
 }
-concept ValueAdditionActivity {
-  o String activityName
-  --> Person performedBy
-}
 
 concept PurchaseOrderInfo {
   o String id
@@ -354,35 +231,168 @@ concept PurchaseOrderInfo {
   --> Person seller
   --> Person buyer
 }
-asset PurchaseOrder identified by id {
-  o String id
-  o POStatus status
-  o PurchaseOrderLineItem [] products
-  o Double totalAMount
-  o String description optional
-  --> Person seller
-  --> Person buyer
+
+concept Cargo {
+  o String serial_number
+  o String name
 }
-  
-asset Product identified by serial_number {
+enum BillOfLandingStatus {
+  o SHIPPED 
+  o RECEIVED
+}
+
+
+// TRANSACTIONS
+transaction CreateProduct {
   o String serial_number
   o String image
   o String name
-  o Double price
   o String location
-  --> Artisan [] artisans
-  --> ProductDesign design
-  --> Person owner
-  o QualityCertificate qualityCertificate optional
-  o ValueAdditionActivity [] valueAdditionActivities optional
+  o Double price
+  o String [] artisanIds
+  o String designId
+  o String ownerId
 }
- 
-asset ProductDesign identified by id {
-  	o String id
-	o String name
-  	o DateTime dateCreated
-  	--> Person [] designers
-    o BillOfMaterial [] material
-  	o Specification specification
+
+event ProductEvent {
+  o Product product
+}
+
+transaction CreateProductDesign {
+  o String name
+  o String designId
+  o BillOfMaterial [] material
+  o Specification specification  
+  o String [] designerIds
+}
+
+transaction GetDesignByDesignerId {
+  o String designerId
+}
+
+event DesignInfo {
+  o ProductDesignInfo [] designs
+}
+
+transaction AddQualityCertificate {
+  o String productId
+  o QualityStatus status
+  o String userId
+}
+
+transaction AddValueAddition {
+  o String productId
+  o String activityName
+  --> Person performedBy
+}
+
+transaction ReviewPurchaseOrder {
+  o String purchaseOrderId
+  o POStatus status
+  o String description optional
+}
+
+event PurchaseOrderInfoEvent {
+  o PurchaseOrder purchaseOrder
+}
+
+transaction GenerateInvoice {
+  o String purchaseOrderId
+  o String invoiceId
+}
+
+event GenerateInvoiceEvent {
+  o Invoice invoice
+}
+
+transaction RequestLetterOfCredit {
+  o String id
+  --> Person beneficiary
+  --> Person applicant
+  --> PurchaseOrder purchaseOrder
+}
+
+event RequestLetterOfCreditEvent {
+  --> LetterOfCredit loc
+}
+
+transaction ApproveLetterOfCredit {
+  --> LetterOfCredit loc
+  --> Person approvingParty
+}
+
+event ApproveLetterOfCreditEvent {
+  --> LetterOfCredit loc
+  --> Person approvingParty
+}
+
+transaction RejectLetterOfCredit {
+  --> LetterOfCredit loc
+  o String closeReason
+}
+
+event RejectLetterOfCreditEvent {
+  --> LetterOfCredit loc
+  o String rejectionReason
+}
+
+transaction MakePayment {
+  --> LetterOfCredit loc
+  --> BankEmployee bankEmployee
+}
+
+event MakePaymentEvent {
+	--> LetterOfCredit loc
+}
+
+transaction AcknowledgePayment {
+--> LetterOfCredit loc
+}
+
+event AcknowledgePaymentEvent {
+	o LetterOfCredit loc
+}
+
+transaction TransferHandcraft{
+  --> LetterOfCredit loc
+}
+
+event TransferHandcraftEvent{
+  --> LetterOfCredit loc
+}
+
+transaction CreateDemoParticipants {
+}
+
+transaction ShipProduct {
+  --> LetterOfCredit loc
+  o String trackingNumber
+  o Cargo [] cargo 
+}
+
+event ShipProductEvent {
+  --> LetterOfCredit loc
+}
+
+transaction ReceiveProduct {
+  --> LetterOfCredit loc
+}
+
+event ReceiveProductEvent {
+  --> LetterOfCredit loc
+}
+
+// @commit(false)
+@returns(TransactionHistory)
+transaction GetProductHistory {
+  o String serial_number
+}
+
+event TransactionHistoryEvent {
+ o ProductHistory [] transactionHistory
+}
+
+concept TransactionHistory {
+ o ProductHistory [] transactionHistory  
 }
 

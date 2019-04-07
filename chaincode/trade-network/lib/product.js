@@ -45,9 +45,20 @@ async function createProduct(transaction) {
     product.design = factory.newRelationship(namespace, 'ProductDesign', transaction.designId);
 
     await prodRegistry.add(product);
+
+  	// create the product history
+    const history = factory.newResource(namespace, 'ProductHistory',  transaction.transactionId);
+    history.timestamp = transaction.timestamp;
+    history.serial_number = transaction.serial_number;
+    history.transaction = transaction.$type;
+    history.personInvoking = getCurrentParticipant();
+    history.product = product;
+
+  	 const historyRegistry = await getAssetRegistry('org.trade.com.ProductHistory');
+    await historyRegistry.add(history);
+
     // emit event
     const productInfo = factory.newEvent(namespace, 'ProductEvent');
-    productInfo.transactionIds = [transaction.serial_number];
     productInfo.product = product;
     emit(productInfo);
 
@@ -78,12 +89,21 @@ async function addQualityCertificate(request) {
         const assetRegistry = await getAssetRegistry(product[0].getFullyQualifiedType());
         await assetRegistry.update(product[0]);
 
+        // create the product history
+        const history = factory.newResource(namespace, 'ProductHistory',  request.transactionId);
+        history.timestamp = request.timestamp;
+        history.serial_number = request.productId;
+        history.transaction = request.$type;
+        history.personInvoking = getCurrentParticipant();
+        history.product = product[0];
+
+        const historyRegistry = await getAssetRegistry('org.trade.com.ProductHistory');
+        await historyRegistry.add(history);
+
         // emit event
         const productInfo = factory.newEvent(namespace, 'ProductEvent');
         productInfo.product = product[0];
-        productInfo.transactionIds = [product[0].serial_number];
         emit(productInfo);
-
 
     }
     catch (e) {
@@ -121,80 +141,55 @@ async function addValueAddition(request) {
     product.valueAdditionActivities = activities;
     await assetRegistry.update(product);
 
+    // create the product history
+    const history = factory.newResource(namespace, 'ProductHistory',  request.transactionId);
+    history.timestamp = request.timestamp;
+    history.serial_number = request.productId;
+    history.transaction = request.activityName;
+    history.personInvoking = getCurrentParticipant();
+    history.product = product;
+
+
+    const historyRegistry = await getAssetRegistry('org.trade.com.ProductHistory');
+    await historyRegistry.add(history);
+
     // emit event
     const productInfo = factory.newEvent(namespace, 'ProductEvent');
     productInfo.product = product;
-    productInfo.transactionIds = [product.serial_number];
     emit(productInfo);
 
 }
 
 /**
  *
- * @param {org.trade.com.SearchProductHistory} request - the searchProductHistory transaction
+ * @param {org.trade.com.GetProductHistory} request - the getProductHistory transaction
+  * @returns {org.trade.com.TransactionHistory} the return data
  * @transaction
  */
-async function searchProductHistory(request){
-	 const namespace = 'org.trade.com';
+async function getProductHistory(request) {
+    const namespace = 'org.trade.com';
+
     const factory = getFactory();
+  	const assetRegistry =  await getAssetRegistry('org.trade.com.Product');
+  	const product = await assetRegistry.get(request.serial_number);
+    const designId = product.design.getIdentifier();
 
-  	const productHistory = await query('searchProductHistory');
-  	const hasProductEvent = (events, productId) => {
-        const event = events.find(e => e.transactionIds.includes(productId));
-        if (event){
-            return true;
-        }
-        return false;
-    };
+    const transactionHistory = await query('getAssetHistory', { productId: request.serial_number,  designId: designId });
+    console.log('transactionHistory', transactionHistory);
+    if (transactionHistory.length === 0) {
+        // eslint-disable-next-line no-throw-literal
+        throw 'No product with serial number ' + request.serial_number + ' found';
+    }
 
-    const artisanRegistry =  await getParticipantRegistry('org.trade.com.Artisan');
-    const qaRegistry =  await getParticipantRegistry('org.trade.com.QualityAnalyst');
-    const bankEmployeeRegistry =  await getParticipantRegistry('org.trade.com.BankEmployee');
+    const transactions = factory.newConcept(namespace, 'TransactionHistory');
+  	transactions.transactionHistory = transactionHistory;
 
-    let participantRegistry;
-    const transactionHistory = productHistory.filter(hist => {
-  	return hasProductEvent(hist.eventsEmitted, request.serial_number);
-    }).map(async his => {
-  	const history = {};
-        history.transactionTimestamp = his.transactionTimestamp;
-        history.transaction = his.transactionType.split('org.trade.com.')[1];
-        history.product = his.eventsEmitted[0].product;
-        history.transactionId = his.transactionId;
+    // emit event
+    const transactionEvent = factory.newEvent(namespace, 'TransactionHistoryEvent');
+    transactionEvent.transactionHistory = transactionHistory;
+    emit(transactionEvent);
 
-        if (his.participantInvoking.$type === 'Artisan'){
-    	participantRegistry = artisanRegistry;
-        }
-        if (his.participantInvoking.$type === 'QualityAnalyst'){
-    	participantRegistry = qaRegistry;
-        }
-        if (his.participantInvoking.$type === 'BankEmployee'){
-    	participantRegistry = bankEmployeeRegistry;
-        }
-
-        history.participantInvoking = await participantRegistry.get(his.participantInvoking.$identifier);
-
-        return history;
-
-    });
-
-    const history = await Promise.all(transactionHistory);
-    history.sort((a, b) => new Date (b.transactionTimestamp) - new Date (a.transactionTimestamp));
-
-    const transactionHistories = [];
-    history.map(hist => {
-        const transactionHistory = factory.newConcept(namespace, 'TransactionHistory');
-        transactionHistory.transactionId = hist.transactionId;
-        transactionHistory.product = hist.product;
-        transactionHistory.personInvoking = hist.participantInvoking;
-        transactionHistory.transaction = hist.transaction;
-        transactionHistory.timeStamp = hist.transactionTimestamp;
-        transactionHistories.push(transactionHistory);
-
-    });
-
-    const historyEvent = factory.newEvent(namespace, 'SearchProductHistoryEvent');
-    historyEvent.productHistory = transactionHistories;
-    emit(historyEvent);
+    return transactions;
 }
 
 /**

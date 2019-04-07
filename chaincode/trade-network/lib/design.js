@@ -34,8 +34,8 @@ async function createProductDesign(designRequest) {
     design.material = designRequest.material;
     design.specification = designRequest.specification;
     const designers = [];
-    designRequest.designers.forEach(designer => {
-        designers.push(factory.newRelationship(namespace, 'User', designer.getIdentifier()));
+    designRequest.designerIds.forEach(designer => {
+        designers.push(factory.newRelationship(namespace, 'Designer', designer));
     });
     if (designers.length === 0) {
         // eslint-disable-next-line no-throw-literal
@@ -43,12 +43,24 @@ async function createProductDesign(designRequest) {
     }
 
     design.designers = designers;
-    design.dateCreated = new Date();
     design.name = designRequest.name;
 
     // save the product design
     const assetRegistry = await getAssetRegistry(design.getFullyQualifiedType());
     await assetRegistry.add(design);
+
+    // create the product history
+    const history = factory.newResource(namespace, 'ProductHistory',  designRequest.transactionId);
+    history.timestamp = designRequest.timestamp;
+    history.serial_number = designRequest.designId;
+    history.transaction = 'create design';
+    history.personInvoking = getCurrentParticipant();
+    history.design = design;
+
+
+    const historyRegistry = await getAssetRegistry('org.trade.com.ProductHistory');
+    await historyRegistry.add(history);
+
 
     // emit event
     // const deisgnInfo = factory.newEvent(namespace, 'CreateProductDesignEvent');
@@ -65,15 +77,13 @@ async function getDesignByDesignerId(designReq) {
     try {
         const user = await query('getUserById', {id: designReq.designerId});
         if (user.length === 0) {
-        // eslint-disable-next-line no-throw-literal
-            throw 'Designer with the id ' + designerId + 'does not exist';
+            throw new Error('Designer with the id ' + designerId + 'does not exist');
         }
   	const designerId = 'resource:'+ user[0].getFullyQualifiedIdentifier();
         const designs = await query('searchProductDesignByDesignerId', {id: designerId});
 
         if (designs.length === 0){
-        // eslint-disable-next-line no-throw-literal
-            throw 'Not found ' + designerId;
+            throw new Error('Not found ' + designerId);
         }
 
         const designLineItems = [];

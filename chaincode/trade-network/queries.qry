@@ -36,12 +36,3 @@ query searchProductBySerialNumber {
     SELECT org.trade.com.Product
     WHERE (serial_number == _$productId)
 } 
-
-query searchProductHistory {
-  description: "search product by serial number"
-  statement: 
-    SELECT org.hyperledger.composer.system.HistorianRecord
-  	WHERE (transactionType == 'org.trade.com.CreateProduct' OR transactionType == 'org.trade.com.AddValueAddition' OR
-           transactionType == 'org.trade.com.TransferHandcraft' OR transactionType == 'org.trade.com.AddQualityCertificate')
-} 
-

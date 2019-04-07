@@ -184,7 +184,7 @@ rule EveryoneCanSearchProductDesignByArtisanId {
 rule QualityAnalystCabCreateCertificate {
   description: "analyst are allowed to add certificate"
   participant: "org.trade.com.QualityAnalyst"
-  operation: CREATE
+  operation: CREATE, READ
   resource: "org.trade.com.AddQualityCertificate"
   action: ALLOW
 }
@@ -239,40 +239,7 @@ rule OnlyBuyerAndSellerCanSeeTheirInvoice {
   condition: (r.seller.getIdentifier() === p.getIdentifier() || r.buyer.getIdentifier() === p.getIdentifier())
   action: ALLOW
 }
-rule EveryOneCanIssueACheque {
-  description: "Anyone can issue a cheque"
-  participant: "org.trade.com.Person"
-  operation: CREATE, READ
-  resource: "org.trade.com.IssueCheque"
-  action: ALLOW
-}
 
-rule EveryOneCanCreateCheque {
-  description: "Anyone can create a cheque"
-  participant: "org.trade.com.Person"
-  operation: CREATE
-  resource: "org.trade.com.Cheque"
-  transaction: "org.trade.com.IssueCheque"
-  action: ALLOW
-}
-rule OnlyBuyerAndSellerCanSeeTheirCheques {
-  description: "buyers and sellers can see their respective cheques"
-  participant(p): "org.trade.com.Person"
-  operation: READ
-  resource(r): "org.trade.com.Cheque"
-  condition: (p.getIdentifier() == r.invoice.seller.getIdentifier() || p.getIdentifier() == r.invoice.buyer.getIdentifier() )
-  action: ALLOW
-}
-
-
-rule BankCanViewAndUpdateCheque {
-  description: "bank can read and update cheque"
-  participant(p): "org.trade.com.BankEmployee"
-  operation: READ, UPDATE
-  resource(r): "org.trade.com.Cheque"
-  condition: (p.getIdentifier() == r.bank.getIdentifier() )
-  action: ALLOW
-}
 rule BankCanTransferPayment {
   description: "bank can transfer payment"
   participant: "org.trade.com.Bank"
@@ -571,11 +538,12 @@ rule ExportingBankTransfersHandcraft {
     condition: (p.bank.getIdentifier() === r.exportingBank.getIdentifier())
     action: ALLOW
 }
-rule EveryOneCanSearchForproductHistory {
-    description: "everyone can search for product history"
-    participant: "org.trade.com.*"
+
+rule AllEveryOneToHaveAccessToProductHistory {
+    description: "Grant everyone full access to product history"
+    participant: "org.trade.com.Person"
     operation: ALL
-    resource: "org.trade.com.SearchProductHistory"
+    resource: "org.trade.com.ProductHistory"
     action: ALLOW
 }
 

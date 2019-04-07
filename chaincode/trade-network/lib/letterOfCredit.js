@@ -130,70 +130,6 @@ async function rejectLetterOfCredit(rejectRequest) { // eslint-disable-line no-u
 
 
 /**
- * @param {org.trade.com.ShipProduct} shipProduct - the ShipProduct transaction
- * @transaction
- */
-async function shipProduct(shipRequest) { // eslint-disable-line no-unused-vars
-    const factory = getFactory();
-    const namespace = 'org.trade.com';
-
-    let letter = shipRequest.loc;
-
-    if (letter.status === 'APPROVED') {
-        letter.status = 'PRODUCTS_SHIPPED';
-      	letter.evidence ?  letter.evidence.push(shipRequest.evidence) :  letter.evidence = [shipRequest.evidence];
-        letter.evidence.push(shipRequest.evidence);
-
-        //update the status of the loc
-        const assetRegistry = await getAssetRegistry(shipRequest.loc.getFullyQualifiedType());
-        await assetRegistry.update(letter);
-
-        // emit event
-        const shipEvent = factory.newEvent(namespace, 'ShipProductEvent');
-        shipEvent.loc = shipRequest.loc;
-        emit(shipEvent);
-    } else if (letter.status === 'AWAITING_APPROVAL') {
-        throw new Error ('This letter needs to be fully approved before the product can be shipped');
-    } else if (letter.status === 'CLOSED' || letter.status === 'REJECTED') {
-        throw new Error ('This letter of credit has already been closed');
-    } else {
-        throw new Error ('The product has already been shipped');
-    }
-}
-
-/**
- * @param {org.trade.com.ReceiveProduct} receiveProduct - the ReceiveProduct transaction
- * @transaction
- */
-async function receiveProduct(receiveRequest) { // eslint-disable-line no-unused-vars
-    const factory = getFactory();
-    const namespace = 'org.trade.com';
-
-    let letter = receiveRequest.loc;
-
-    if (letter.status === 'PRODUCTS_SHIPPED') {
-        letter.status = 'PRODUCTS_RECEIVED';
-        letter.evidence.push(receiveRequest.evidence);
-
-
-        // update the status of the loc
-        const assetRegistry = await getAssetRegistry(receiveRequest.loc.getFullyQualifiedType());
-        await assetRegistry.update(letter);
-
-        // emit event
-        const receiveEvent = factory.newEvent(namespace, 'ReceiveProductEvent');
-        receiveEvent.loc = receiveRequest.loc;
-        emit(receiveEvent);
-    } else if (letter.status === 'AWAITING_APPROVAL' || letter.status === 'APPROVED'){
-        throw new Error('The product needs to be shipped before it can be received');
-    } else if (letter.status === 'CLOSED' || letter.status === 'REJECTED') {
-        throw new Error ('This letter of credit has already been closed');
-    } else {
-        throw new Error('The product has already been received');
-    }
-}
-
-/**
  * Mark a given letter as "paid"
  * @param {org.trade.com.MakePayment} makePayment - the MakePayment transaction
  * @transaction
@@ -207,8 +143,6 @@ async function makePayment(paymentRequest) { // eslint-disable-line no-unused-va
         paymentRequest.bankEmployee.bank.getIdentifier() === letter.issuingBank.getIdentifier()
     	? 'READY_FOR_PAYMENT'
     	: 'PAID';
-
-
 
     if (letter.status === 'PRODUCTS_RECEIVED' || letter.status === 'READY_FOR_PAYMENT') {
         letter.status = status;
@@ -268,15 +202,14 @@ async function transferHandcraft(transferRequest) { // eslint-disable-line no-un
     const namespace = 'org.trade.com';
 
     let letter = transferRequest.loc;
-  	const invoice = transferRequest.invoice;
+  	const cargo = letter.billOfLanding.cargo;
 
     if (letter.status === 'PAYMENT_CONFIRMED') {
         letter.status = 'CLOSED';
 
-      	const lineItems = invoice.invoiceLineItem;
     	const prodRegistry = await getAssetRegistry('org.trade.com.Product');
 
-        const promises = lineItems.map(async item => {
+        const promises = cargo.map(async item => {
             const product = await prodRegistry.get(item.serial_number);
             return product;
 
@@ -287,7 +220,6 @@ async function transferHandcraft(transferRequest) { // eslint-disable-line no-un
         products.map(prod =>{
             prod.owner = letter.applicant;
         });
-
         await prodRegistry.updateAll(products);
 
 
@@ -295,10 +227,20 @@ async function transferHandcraft(transferRequest) { // eslint-disable-line no-un
         const assetRegistry = await getAssetRegistry(transferRequest.loc.getFullyQualifiedType());
         await assetRegistry.update(letter);
 
+        // create the product history
+        const history = factory.newResource(namespace, 'ProductHistory',  transferRequest.transactionId);
+        history.timestamp = transferRequest.timestamp;
+        history.serial_number = products[0].serial_number;
+        history.transaction = 'change of onwership';
+        history.personInvoking = getCurrentParticipant();
+        history.product = products[0];
+
+        const historyRegistry = await getAssetRegistry('org.trade.com.ProductHistory');
+        await historyRegistry.add(history);
+
         // emit event
         const transferEvent = factory.newEvent(namespace, 'TransferHandcraftEvent');
         transferEvent.loc = letter;
-      	transferEvent.transactionIds = lineItems.map(item => item.serial_number);
         emit(transferEvent);
 
     } else if (letter.status === 'CLOSED' || letter.status === 'REJECTED') {
@@ -309,80 +251,3 @@ async function transferHandcraft(transferRequest) { // eslint-disable-line no-un
         throw new Error('The payment cannot be made until the product has been received by the applicant');
     }
 }
-
-/**
-//  *
-//  * @param {org.trade.com.IssueCheque} request - the issueCheque transaction
-//  * @transaction
-//  */
-// async function issueCheque (request) {
-//     const namespace = 'org.trade.com';
-//     const factory = getFactory();
-
-
-//     // const id = new Date().getTime().toString();
-//     const cheque = factory.newResource(namespace, 'Cheque', request.chequeId);
-//   	cheque.benficiary = request.invoice.seller.userName;
-//   	cheque.from = request.invoice.buyer.userName;
-//   	cheque.amount = request.invoice.totalAmount;
-//   	cheque.accountNumber = request.invoice.seller.accountNumber;
-//   	cheque.invoice = factory.newRelationship(namespace, 'Invoice', request.invoice.id);
-//     cheque.bank = factory.newRelationship(namespace, 'Bank', request.bank.name);
-//   	cheque.status = 'UNPAID';
-
-
-//     //save the cheque
-//     const chequeRegistry = await getAssetRegistry(cheque.getFullyQualifiedType());
-//     await chequeRegistry.add(cheque);
-
-//   	 // emit event
-//     const event = factory.newEvent(namespace, 'ChequeEvent');
-//     event.cheque = cheque;
-//     emit(event);
-// }
-
-/**
-//  *
-//  * @param {org.trade.com.MakePayment} request - the makePayment transaction
-//  * @transaction
-//  */
-// async function makePayment (request) {
-//     const namespace = 'org.trade.com';
-//     const factory = getFactory();
-
-//     const cheque = request.cheque;
-//     if (cheque.status === 'CANCELLED') {
-//         // eslint-disable-next-line no-throw-literal
-//         throw 'The cheque was cancelled';
-//     }
-//     else if (cheque === 'PAID') {
-//         // eslint-disable-next-line no-throw-literal
-//         throw 'The cheque was already paid';
-//     }
-
-//     const lineItems = request.cheque.invoice.invoiceLineItem;
-//     const prodRegistry = await getAssetRegistry('org.trade.com.Product');
-
-//     const promises = lineItems.map(async item => {
-//         const product = await prodRegistry.get(item.serial_number);
-//         return product;
-
-//     });
-//     // eslint-disable-next-line no-undef
-//     const products = await Promise.all(promises);
-
-//     products.map(prod =>{
-//         prod.owner = request.cheque.invoice.buyer;
-//     });
-//     cheque.status = 'PAID';
-//     const chequeReg = await getAssetRegistry('org.trade.com.Cheque');
-//     await chequeReg.update(cheque);
-//     console.log('products', products);
-//     await prodRegistry.updateAll(products);
-
-//     // emit event
-//     const event = factory.newEvent(namespace, 'ChequeEvent');
-//     event.cheque = cheque;
-//     emit(event);
-
-// }
