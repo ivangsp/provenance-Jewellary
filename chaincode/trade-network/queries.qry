@@ -1,38 +1,49 @@
+namespace org.trade.com
 query findProductByName {
   description: "search product by serial number"
   statement: 
     SELECT org.trade.com.Product
-    WHERE (name == _$name)
+      WHERE (name == _$name)
 }
 query getUserById {
   description: "search user with a particular id"
   statement:
     SELECT org.trade.com.Person
-    WHERE (id == _$id)
+      WHERE (id == _$id)
 }
 query searchProductDesignByDesignerId {
   description: "Search design by designer id"
   statement:
     SELECT org.trade.com.ProductDesign
-    WHERE (designers CONTAINS _$id)
+      WHERE (designers CONTAINS _$id)
 }
 query searchProductByArtisanName {
   description: "Search product by artisan name"
   statement:
     SELECT org.trade.com.Product
-    WHERE (owner.userName == _$name)
+      WHERE (owner.userName == _$name)
 }
 
-query findAvailableProducts {
-  description: "Seacrch prodct by artisan name"
+query getProductsByDesignerName {
+  description: "get handcraft using designer's name"
   statement:
     SELECT org.trade.com.Product
-    WHERE (design.name == _$name)
+      WHERE (design.name == _$name)
+        ORDER BY [price ASC]
 }
 
 query searchProductBySerialNumber {
   description: "search product by serial number"
   statement: 
     SELECT org.trade.com.Product
-    WHERE (serial_number == _$productId)
-} 
+      WHERE (serial_number == _$productId)
+}
+
+query getProductHistory {
+  description: "returns a list of all transactions"
+  statement:
+    SELECT org.hyperledger.composer.system.HistorianRecord
+      WHERE (transactionType == 'CreateProduct' 
+        OR transactionType == 'CreateProductDesign' OR transactionType == 'AddQualityCertificate'
+        OR transactionType == 'AddValueAddition')     
+}
