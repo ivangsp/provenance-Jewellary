@@ -26,8 +26,8 @@ export COMPOSER_MULTIUSER=false
 #   "github": {
 #     "provider": "github",
 #     "module": "passport-github",
-#     "clientID": "f3aa0fd9194f53741a57",
-#     "clientSecret": "51a6e363ba040b0c00919c6070a2e8ceb297ce4a",
+#     "clientID": "",
+#     "clientSecret": "",
 #     "authPath": "/auth/github",
 #     "callbackURL": "/auth/github/callback",
 #     "successRedirect": "/",

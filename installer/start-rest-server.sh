@@ -21,8 +21,8 @@ export COMPOSER_WEBSOCKETS=true
 #   "github": {
 #     "provider": "github",
 #     "module": "passport-github",
-#     "clientID": "a9c850d93a1677b7e226",
-#     "clientSecret": "3068a6cfe25ee9a0900d472ef729229fca36792d",
+#     "clientID": "",
+#     "clientSecret": "",
 #     "authPath": "/auth/github",
 #     "callbackURL": "/auth/github/callback",
 #     "successRedirect": "/",
