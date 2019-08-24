@@ -1,21 +1,14 @@
-# setting up the network
-
-- Download the fabric-samples ie `git clone -b issue-6978 https://github.com/sstone1/fabric-samples.git`
-
-- Download Docker images and Download the platform binaries, including cryptogen. 
+### Network Setup
+- Download Hyperledger fabric samples and all the Docker images required using the command below. 
 
     `curl -sSL https://goo.gl/6wtTN5 | bash -s 1.1.0 1.1.0  0.4.6`
 
-## genearte cryptographic materials
+- clone the repository `git clone https://github.com/ivangsp/provenance-Jewellary`.
 
-`./byfn.sh -m generate`
+- move to the network folder ie `cd provenance-Jewellary/network/`.
 
-## starting the Network
+- Generate certificates for all the peers and order by running this command `./byfn.sh -m generate`
 
-Naviaget to `network` folder and enter the folloing commands
+- starting the Network  using this command `./byfn.sh -m up -s couchdb -a`. This will create all the  docker containers required. 
 
-`./byfn.sh -m up -s couchdb -a`
-
-## stoping the network
-
-`./byfn.sh -m down`
+- If you want to stop the network, use `./byfn.sh -m down`
