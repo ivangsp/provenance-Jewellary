@@ -63,6 +63,15 @@ Using composer we can generate rest-api that connects to our blockchain.
 
 You can run multiple sites using different cards.
 
+### Running the Client application.
+
+The application contains two client application that use React. Navigate to client-application and then move to any of the client application. ie `cd client-applications/artisan`
+
+- Install all the depedencies `npm install`.
+
+- Run the application using `npm start`.
+
+
 
 
 
